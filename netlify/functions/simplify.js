@@ -13,7 +13,6 @@ export async function handler(event, context) {
   }
 
   try {
-  // Retrieve API key
     const { text } = JSON.parse(event.body);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: 'POST',
@@ -41,6 +40,7 @@ export async function handler(event, context) {
     const data = await response.json();
     return {
       statusCode: 200,
+      headers,
       body: JSON.stringify({ simplified: data.choices[0].message.content })
     }
   } catch (error) {
