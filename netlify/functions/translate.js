@@ -5,7 +5,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 export async function handler(event, context) {
   const headers = {
     // "Access-Control-Allow-Origin": "chrome-extension://jjgoafkbaaomiieahjfcapkemokcehhb", // or set a specific domain instead of '*'
-    "Access-Control-Allow-Origin": "x", // or set a specific domain instead of '*'
+    "Access-Control-Allow-Origin": "*", // or set a specific domain instead of '*'
     "Access-Control-Allow-Headers": "Content-Type",
   };
 
