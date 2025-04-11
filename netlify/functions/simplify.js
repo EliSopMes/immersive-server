@@ -1,6 +1,6 @@
 export async function handler(event, context) {
   const headers = {
-    "Access-Control-Allow-Origin": "chrome-extension://jjgoafkbaaomiieahjfcapkemokcehhb", // or set a specific domain instead of '*'
+    "Access-Control-Allow-Origin": "*", // or set a specific domain instead of '*'
     "Access-Control-Allow-Headers": "Content-Type",
   };
 
