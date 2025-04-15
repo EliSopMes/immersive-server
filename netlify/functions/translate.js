@@ -21,7 +21,7 @@ export async function handler(event, context) {
 
   let { data, error } = await supabase
     .from("rate_limits")
-    .select("count")
+    .select("translate_count")
     .eq("identifier", ip)
     .eq("date", today)
     .single();
@@ -31,14 +31,14 @@ export async function handler(event, context) {
     return { statusCode: 500, body: JSON.stringify({ error: "Rate check failed" }) };
   }
 
-  if (data && data.count >= 100) {
+  if (data && data.translate_count >= 100) {
     return { statusCode: 429, body: JSON.stringify({ error: "Rate limit exceeded" }) };
   }
 
   if (data) {
     await supabase
       .from("rate_limits")
-      .update({ count: data.count + 1 })
+      .update({ translate_count: data.translate_count + 1 })
       .eq("identifier", ip)
       .eq("date", today);
   } else {

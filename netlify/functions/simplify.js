@@ -1,3 +1,7 @@
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY); // Service role key — only on server
+
 export async function handler(event, context) {
   const headers = {
     "Access-Control-Allow-Origin": "*", // or set a specific domain instead of '*'
@@ -10,6 +14,37 @@ export async function handler(event, context) {
       headers,
       body: "Preflight OK",
     };
+  }
+
+  const ip = event.headers["x-forwarded-for"] || "unknown-ip"; // fallback if IP missing
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+  let { data, error } = await supabase
+    .from("rate_limits")
+    .select("simplify_count")
+    .eq("identifier", ip)
+    .eq("date", today)
+    .single();
+
+  if (error && error.code !== "PGRST116") {
+    // Real error
+    return { statusCode: 500, body: JSON.stringify({ error: "Rate check failed" }) };
+  }
+
+  if (data && data.simplify_count >= 100) {
+    return { statusCode: 429, body: JSON.stringify({ error: "Rate limit exceeded" }) };
+  }
+
+  if (data) {
+    await supabase
+      .from("rate_limits")
+      .update({ simplify_count: data.simplify_count + 1 })
+      .eq("identifier", ip)
+      .eq("date", today);
+  } else {
+    await supabase
+      .from("rate_limits")
+      .insert({ identifier: ip, date: today });
   }
 
   try {
