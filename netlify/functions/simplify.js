@@ -48,7 +48,7 @@ export async function handler(event, context) {
   }
 
   try {
-    const { text } = JSON.parse(event.body);
+    const { text, level } = JSON.parse(event.body);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: 'POST',
         headers: {
@@ -60,7 +60,7 @@ export async function handler(event, context) {
           "messages": [
             {
               "role": "system",
-              "content": "You are a German language tutor specializing on transforming complicated German words & sentences into A2 level."
+              "content": `You are a German language tutor specializing on transforming complicated German words & sentences into ${level} level.`
             },
             {
               "role": "user",
