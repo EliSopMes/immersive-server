@@ -34,17 +34,18 @@
   const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
 
   (async () => {
-    const { data: { session }, error } = supabase.auth.getSession();
+    // const { data: { session }, error } = supabase.auth.getSession();
+    const { data } = supabase.auth.getSession();
+    console.log(data)
+    // if (error) {
+    //   console.error("Error getting session:", error.message);
+    //   return;
+    // }
 
-    if (error) {
-      console.error("Error getting session:", error.message);
-      return;
-    }
+    // chrome.storage.local.set({ supabaseSession: session }, () => {
+    //   console.log("Session stored in extension storage");
+    // });
 
-    chrome.storage.local.set({ supabaseSession: session }, () => {
-      console.log("Session stored in extension storage");
-    });
-
-    chrome.runtime.sendMessage({ type: "user_signed_in", session });
+    // chrome.runtime.sendMessage({ type: "user_signed_in", session });
   })();
 </script>
