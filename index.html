@@ -116,15 +116,13 @@
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        redirectTo: `https://immersive-server.netlify.app/success.html`
-      }
     });
 
     if (error) {
       console.error("Signup error:", error.message);
     } else {
       console.log("Signup success!", data);
+      window.location.href = "https://immersive-server.netlify.app/success.html";
     }
   }
 
