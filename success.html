@@ -25,27 +25,3 @@
     border-radius: 8px;
   }
 </style>
-<script>
-  window.SUPABASE_URL = "https://gbxmuqfqwiehvsfwpouw.supabase.co";
-  window.SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieG11cWZxd2llaHZzZndwb3V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzNTI3NTIsImV4cCI6MjA1OTkyODc1Mn0.J_aP5NqxbosSYiWpSujYt3tKskCTKJpqpvju_QZ9oQU";
-</script>
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js'
-  const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
-
-  (async () => {
-    // const { data: { session }, error } = supabase.auth.getSession();
-    const { data } = supabase.auth.getSession();
-    console.log(data)
-    // if (error) {
-    //   console.error("Error getting session:", error.message);
-    //   return;
-    // }
-
-    // chrome.storage.local.set({ supabaseSession: session }, () => {
-    //   console.log("Session stored in extension storage");
-    // });
-
-    // chrome.runtime.sendMessage({ type: "user_signed_in", session });
-  })();
-</script>
