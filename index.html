@@ -104,9 +104,13 @@
     }
   }
 </style>
+<script>
+  window.SUPABASE_URL = "https://gbxmuqfqwiehvsfwpouw.supabase.co";
+  window.SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieG11cWZxd2llaHZzZndwb3V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzNTI3NTIsImV4cCI6MjA1OTkyODc1Mn0.J_aP5NqxbosSYiWpSujYt3tKskCTKJpqpvju_QZ9oQU";
+</script>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js'
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON);
+  const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
 
   async function signupWithEmail(email, password) {
     const { data, error } = await supabase.auth.signUp({
