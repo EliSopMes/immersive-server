@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Translator</title>
+    <script src="popup.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="form-container center-div-content">
+      <h2>Sign up</h2>
+      <button id="google-signup">via Google</button>
+      <br>
+      <p>or</p>
+      <form id="signup-form">
+        <label>Email address</label>
+        <br>
+        <!-- <p
+          v-if="response"
+          style="font-size: 20px; color: red;"
+        >
+          {{ response }}
+        </p> -->
+        <input
+          id="email"
+          type="email"
+          required
+          placeholder="Email Address"
+        >
+        <br>
+        <label>Create a password</label>
+        <br>
+        <input
+          id="password"
+          type="password"
+          required
+          placeholder="Enter a chosen password"
+        >
+        <br>
+        <br>
+        <label id="checkbox-input">
+          <input
+            id = "terms"
+            type="checkbox"
+          >
+          <span style="font-size: 15px;">
+            I have read and agree to the
+            <a
+              href="#"
+            >
+              Privacy Policy
+            </a>
+            and
+            <a
+              href="www.google.com"
+            >
+              Terms and Conditions
+            </a></span>
+        </label>
+        <br>
+        <label id="checkbox-input">
+          <input type="checkbox"> <span style="font-size: 15px;">I want to get email updates from Immersive</span>
+        </label>
+        <br><br>
+        <button
+          id="signup-btn"
+          type="submit"
+          style="background-color: grey;"
+          disabled
+        >
+          Create an account
+        </button>
+      </form>
+    </div>
+  </body>
+</html>
+<style>
+  .form-container {
+    margin: 50px auto;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    padding: 20px;
+    border: 1px solid black;
+    width: fit-content;
+    border-radius: 8px;
+
+    button {
+      background-color: black;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-family: "Poppins", sans-serif;
+    }
+
+    #email, #password {
+      width: 400px;
+      height: 20px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 0.3px solid grey;
+      padding: 5px;
+      margin-bottom: 15px;
+    }
+  }
+</style>
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+  const supabase = createClient(`https://gbxmuqfqwiehvsfwpouw.supabase.co`, `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieG11cWZxd2llaHZzZndwb3V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzNTI3NTIsImV4cCI6MjA1OTkyODc1Mn0.J_aP5NqxbosSYiWpSujYt3tKskCTKJpqpvju_QZ9oQU`);
+
+  async function signupWithEmail(email, password) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        redirectTo: `${process.env.BASE_URL}/success.html`
+      }
+    });
+
+    if (error) {
+      console.error("Signup error:", error.message);
+    } else {
+      console.log("Signup success!", data);
+    }
+  }
+
+  async function signInWithGoogle() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${process.env.BASE_URL}/success.html`
+      }
+    });
+
+    // This redirects the user to Google login
+  }
+
+  const terms = document.getElementById('terms')
+  terms.addEventListener('change', () => {
+    const btn = document.getElementById('signup-btn')
+    if (btn.disabled) {
+      btn.style.backgroundColor = 'black'
+      btn.removeAttribute('disabled')
+    } else {
+      btn.style.backgroundColor = 'grey'
+      btn.setAttribute('disabled', true)
+    }
+  })
+
+  document.getElementById('signup-form').addEventListener('submit', (event) => {
+    event.preventDefault()
+    const email = document.getElementById('email').value
+    const password = document.getElementById('password').value
+    signupWithEmail(email, password)
+  })
+
+  document.getElementById('google-signup').addEventListener('click', (event) => {
+    event.preventDefault()
+    signInWithGoogle()
+  })
+
+</script>
