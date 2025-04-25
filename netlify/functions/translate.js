@@ -69,7 +69,7 @@ export async function handler(event, context) {
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ translated: data.translations[0].text })
+        body: JSON.stringify({ translated: data.translations })
       }
     } else {
       return {
