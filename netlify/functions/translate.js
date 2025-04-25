@@ -31,7 +31,7 @@ export async function handler(event, context) {
     return { statusCode: 500, body: JSON.stringify({ error: "Rate check failed" }) };
   }
 
-  if (data && data.translate_count >= 1000) {
+  if (data && data.translate_count >= 50) {
     return { statusCode: 429, body: JSON.stringify({ error: "Rate limit exceeded" }) };
   }
 
