@@ -65,8 +65,8 @@ export async function handler(event, context) {
             {
               "role": "user",
               "content": `Was ist die Übersetzung von diesem Wort: ${text}. Gib mir die Übersetzung,
-               die Art von Wort und im Fall eines Nomens, den passenden Artikel zurück, ohne weitere Erklärungen in diesem Format:
-               { translation: <Übersetzung>, word_type: <Art von Wort>, article: <Artikel>  }
+               die Art von Wort und im Fall eines Nomens, den passenden Artikel zurück, ohne weitere Erklärungen in diesem JSON Format:
+               { "translation": <Übersetzung>, "word_type": <Art von Wort>, "article": <Artikel>  }
                `
             }
           ],
