@@ -60,14 +60,20 @@ export async function handler(event, context) {
           "messages": [
             {
               "role": "system",
-              "content": `You are a German to English dictionairy specializing on translating given text whilst also providing information about the German text`
+              "content": `You are a German-to-English dictionary assistant. Your task is to translate the provided German text into English and give structured information about each word.
+
+            Rules:
+            - Always output a valid JSON string (double-quoted keys and values), ready to be parsed with JSON.parse().
+            - If the input contains multiple words (up to three), return an array of objects — one object per word.
+            - Each object must contain:
+                - "translation": the English translation (string)
+                - "word_type": the part of speech (string, e.g., noun, verb, adjective, etc.)
+                - If the word is a noun, also include "article" (string: der, die, das). Otherwise, omit the "article" field completely.
+            - Do not add any explanations, notes, or extra text outside of the JSON string.`
             },
             {
               "role": "user",
-              "content": `Was ist die Übersetzung von diesem Wort: ${text}. Gib mir die Übersetzung,
-               die Art von Wort und im Fall eines Nomens, den passenden Artikel zurück, ohne weitere Erklärungen in diesem JSON Format:
-               { "translation": <Übersetzung>, "word_type": <Art von Wort>, "article": <Artikel>  }
-               `
+              "content": `Was ist die Übersetzung von diesem Text: ${text}.`
             }
           ],
           max_tokens: 100,
