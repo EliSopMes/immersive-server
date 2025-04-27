@@ -69,7 +69,7 @@ export async function handler(event, context) {
                 - If the input is a single word, also include "word_type": the part of speech (string, e.g., noun, verb, adjective, etc.)
                 - If the word is a noun, also include "article" (string: der, die, das). Otherwise, omit the "article" field completely.
             - Do not add any explanations, notes, or extra text outside of the JSON string.
-            - Never add triple backticks (````), output only valid parsable JSON`
+            - Never add triple backticks, output only valid parsable JSON`
             },
             {
               "role": "user",
