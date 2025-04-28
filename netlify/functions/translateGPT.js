@@ -68,6 +68,7 @@ export async function handler(event, context) {
                 \n    - \"translation\": (string) the English translation.
                 \n    - \"word_type\": (string) part of speech (e.g., noun, verb, adjective, etc.).
                 \n    - If \"word_type\" is \"noun\", add \"article\": (string) with the value 'der', 'die', or 'das'. Otherwise, omit the \"article\" field completely.
+                \n    - If \"word_type\" is \"verb\", add \"infinitive\": (string) with the value of the uninflected / infintive form of that verb. Otherwise, omit the \"infinitive\" field completely.
                 \n- Fields for multiple words:
                 \n    - - \"translation\": (string) the English translation.
                 \n\nImportant: No explanations, no greetings, no notes. Only pure valid JSON.`
