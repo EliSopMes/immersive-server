@@ -18,66 +18,67 @@ export async function handler(event, context) {
 
   // const ip = event.headers["x-forwarded-for"] || "unknown-ip"; // fallback if IP missing
   // const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-
-  const jwt = event.headers.authorization?.replace("Bearer ", "");
-  if (!jwt) {
-    return {
-      statusCode: 401,
-      headers,
-      body: JSON.stringify({ error: "Missing or invalid token" })
-    };
-  }
-  const supabaseUserClient = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY, // Only needed to decode the JWT
-    {
-      global: { headers: { Authorization: `Bearer ${jwt}` } }
-    }
-  );
-
-  const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
-
-  if (userError || !user) {
-    return {
-      statusCode: 401,
-      headers,
-      body: JSON.stringify({ error: "Invalid token or user not found" })
-    };
-  }
-
-  const userId = user.id;
-
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-
-  let { data, error } = await supabase
-    .from("rate_limits")
-    .select("simplify_count")
-    .eq("user_id", userId)
-    .eq("date", today)
-    .single();
-
-  if (error && error.code !== "PGRST116") {
-    // Real error
-    return { statusCode: 500, headers, body: JSON.stringify({ error: "Rate check failed" }) };
-  }
-
-  if (data && data.simplify_count >= 50) {
-    return { statusCode: 429, headers, body: JSON.stringify({ error: "Rate limit exceeded" }) };
-  }
-
-  if (data) {
-    await supabase
-      .from("rate_limits")
-      .update({ simplify_count: data.simplify_count + 1 })
-      .eq("user_id", userId)
-      .eq("date", today);
-  } else {
-    await supabase
-      .from("rate_limits")
-      .insert({ user_id: userId, date: today, simplify_count: 1 });
-  }
-
   try {
+    const jwt = event.headers.authorization?.replace("Bearer ", "");
+    if (!jwt) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: "Missing or invalid token" })
+      };
+    } else {
+      console.log(jwt)
+    }
+    const supabaseUserClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON_KEY, // Only needed to decode the JWT
+      {
+        global: { headers: { Authorization: `Bearer ${jwt}` } }
+      }
+    );
+
+    const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: "Invalid token or user not found" })
+      };
+    }
+
+    const userId = user.id;
+
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+    let { data, error } = await supabase
+      .from("rate_limits")
+      .select("simplify_count")
+      .eq("user_id", userId)
+      .eq("date", today)
+      .single();
+
+    if (error && error.code !== "PGRST116") {
+      // Real error
+      return { statusCode: 500, headers, body: JSON.stringify({ error: "Rate check failed" }) };
+    }
+
+    if (data && data.simplify_count >= 50) {
+      return { statusCode: 429, headers, body: JSON.stringify({ error: "Rate limit exceeded" }) };
+    }
+
+    if (data) {
+      await supabase
+        .from("rate_limits")
+        .update({ simplify_count: data.simplify_count + 1 })
+        .eq("user_id", userId)
+        .eq("date", today);
+    } else {
+      await supabase
+        .from("rate_limits")
+        .insert({ user_id: userId, date: today, simplify_count: 1 });
+    }
+
     const { text, level } = JSON.parse(event.body);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: 'POST',
@@ -102,11 +103,11 @@ export async function handler(event, context) {
         })
     });
 
-    const data = await response.json();
+    const openaiData = await response.json();
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ simplified: data.choices[0].message.content })
+      body: JSON.stringify({ simplified: openaiData.choices[0].message.content })
     }
   } catch (error) {
     return {
