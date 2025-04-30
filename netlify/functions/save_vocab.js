@@ -44,34 +44,32 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
     let { data, error } = await supabase
-      .from("rate_limits")
-      .select("translate_count")
+      .from("saved_words")
+      .select("original_word")
       .eq("user_id", userId)
-      .eq("date", today)
-      .single();
+      .all();
 
     if (error && error.code !== "PGRST116") {
       // Real error
       return { statusCode: 500, headers, body: JSON.stringify({ error: "Rate check failed" }) };
     }
 
-    if (data && data.translate_count >= 50) {
+    if (data && data.simplify_count >= 50) {
       return { statusCode: 429, headers, body: JSON.stringify({ error: "Rate limit exceeded" }) };
     }
 
     if (data) {
       await supabase
         .from("rate_limits")
-        .update({ translate_count: data.translate_count + 1 })
+        .update({ simplify_count: data.simplify_count + 1 })
         .eq("user_id", userId)
         .eq("date", today);
     } else {
       await supabase
         .from("rate_limits")
-        .insert({ user_id: userId, date: today, translate_count: 1 });
+        .insert({ user_id: userId, date: today, simplify_count: 1 });
     }
     const { text, level } = JSON.parse(event.body);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -85,22 +83,11 @@ export async function handler(event, context) {
           "messages": [
             {
               "role": "system",
-              "content": `You are a German-to-English dictionary assistant. Your task is to translate the provided German text into English.
-              Always strictly output a valid JSON object with double quotes around both keys and string values,
-              with no text before or after. Follow these rules exactly:
-              \n\n- Output ONLY a JSON object, nothing else (no markdown, no code blocks, no backticks).
-              \n- Fields for a single word:
-                \n    - \"translation\": (string) the English translation.
-                \n    - \"word_type\": (string) part of speech (e.g., noun, verb, adjective, etc.).
-                \n    - If \"word_type\" is \"noun\", add \"article\": (string) with the value 'der', 'die', or 'das'. Otherwise, omit the \"article\" field completely.
-                \n    - If \"word_type\" is \"verb\", add \"infinitive\": (string) with the value of the uninflected / infintive form of that verb. Otherwise, omit the \"infinitive\" field completely.
-                \n- Fields for multiple words:
-                \n    - - \"translation\": (string) the English translation.
-                \n\nImportant: No explanations, no greetings, no notes. Only pure valid JSON.`
+              "content": `You are a German dictionairy specializing on giving short & concise German defintions suitable for students with ${level} level.`
             },
             {
               "role": "user",
-              "content": `Was ist die Übersetzung von diesem Text: ${text}.`
+              "content": `Was ist die Definition von: ${text}. Gib nur die Definition zurück, ohne weitere Erklärungen`
             }
           ],
           max_tokens: 100,
@@ -112,7 +99,7 @@ export async function handler(event, context) {
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ translated: openaiData.choices[0].message.content })
+      body: JSON.stringify({ simplified: openaiData.choices[0].message.content })
     }
   } catch (error) {
     return {
