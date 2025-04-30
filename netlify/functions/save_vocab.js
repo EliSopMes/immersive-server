@@ -44,63 +44,39 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
+    const { original_word, translated_word } = JSON.parse(event.body);
 
-    let { data, error } = await supabase
+    const { data: existing, error: selectedError } = await supabase
       .from("saved_words")
-      .select("original_word")
+      .select("*")
       .eq("user_id", userId)
-      .all();
+      .eq("original_word", original_word)
+      .maybeSingle();
 
-    if (error && error.code !== "PGRST116") {
+
+    if (selectError && selectError.code !== "PGRST116") {
       // Real error
-      return { statusCode: 500, headers, body: JSON.stringify({ error: "Rate check failed" }) };
+      return { statusCode: 500, headers, body: JSON.stringify({ error: "Word check failed" }) };
     }
 
-    if (data && data.simplify_count >= 50) {
-      return { statusCode: 429, headers, body: JSON.stringify({ error: "Rate limit exceeded" }) };
+    if (existing) {
+      return { statusCode: 409, headers, body: JSON.stringify({ error: "Word already exists" }) };
     }
 
-    if (data) {
-      await supabase
-        .from("rate_limits")
-        .update({ simplify_count: data.simplify_count + 1 })
-        .eq("user_id", userId)
-        .eq("date", today);
-    } else {
-      await supabase
-        .from("rate_limits")
-        .insert({ user_id: userId, date: today, simplify_count: 1 });
-    }
-    const { text, level } = JSON.parse(event.body);
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          "messages": [
-            {
-              "role": "system",
-              "content": `You are a German dictionairy specializing on giving short & concise German defintions suitable for students with ${level} level.`
-            },
-            {
-              "role": "user",
-              "content": `Was ist die Definition von: ${text}. Gib nur die Definition zurück, ohne weitere Erklärungen`
-            }
-          ],
-          max_tokens: 100,
-          temperature: 0.5
-        })
-    });
+    const { error: insertError } = await supabase
+      .from("saved_words")
+      .insert({ user_id: userId, original_word, translated_word });
 
-    const openaiData = await response.json();
+    if (insertError) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: insertError.message }) };
+    }
+
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ simplified: openaiData.choices[0].message.content })
-    }
+      body: JSON.stringify({ message: "Word saved" }),
+    };
+
   } catch (error) {
     return {
       statusCode: 500,
