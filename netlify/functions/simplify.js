@@ -16,13 +16,41 @@ export async function handler(event, context) {
     };
   }
 
-  const ip = event.headers["x-forwarded-for"] || "unknown-ip"; // fallback if IP missing
+  // const ip = event.headers["x-forwarded-for"] || "unknown-ip"; // fallback if IP missing
+  // const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+  const jwt = event.headers.authorization?.replace("Bearer ", "");
+  if (!jwt) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ error: "Missing or invalid token" })
+    };
+  }
+  const supabaseUserClient = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY, // Only needed to decode the JWT
+    {
+      global: { headers: { Authorization: `Bearer ${jwt}` } }
+    }
+  );
+
+  const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
+
+  if (userError || !user) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ error: "Invalid token or user not found" })
+    };
+  }
+
+  const userId = user.id;
+
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
   let { data, error } = await supabase
     .from("rate_limits")
     .select("simplify_count")
-    .eq("identifier", ip)
+    .eq("user_id", userId)
     .eq("date", today)
     .single();
 
@@ -39,12 +67,12 @@ export async function handler(event, context) {
     await supabase
       .from("rate_limits")
       .update({ simplify_count: data.simplify_count + 1 })
-      .eq("identifier", ip)
+      .eq("user_id", userId)
       .eq("date", today);
   } else {
     await supabase
       .from("rate_limits")
-      .insert({ identifier: ip, date: today });
+      .insert({ user_id: userId, date: today, simplify_count: 1 });
   }
 
   try {

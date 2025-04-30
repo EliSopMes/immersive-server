@@ -27,6 +27,7 @@
           type="email"
           required
           placeholder="Email Address"
+          autocomplete="email"
         >
         <br>
         <label>Create a password</label>
@@ -36,6 +37,7 @@
           type="password"
           required
           placeholder="Enter a chosen password"
+          autocomplete="new-password"
         >
         <br>
         <br>
@@ -123,15 +125,20 @@
     }
 
     const session = data.session;
-    if (session) {
-      chrome.storage.local.set({ supabaseSession: session }, () => {
-        console.log("Session stored in extension storage");
-      });
-      chrome.runtime.sendMessage({ type: "user_signed_in", session });
+    const token = session?.access_token;
+    if (token) {
+      window.postMessage(
+        {
+          type: "SUPABASE_TOKEN",
+          token: token,
+        },
+        "http://127.0.0.1:5500/index.html"
+        // "https://immersive-server.netlify.app/"
+      );
     } else {
       console.warn("No session returned — email may need to be confirmed.");
     }
-    window.location.href = "https://immersive-server.netlify.app/success.html";
+    // window.location.href = "https://immersive-server.netlify.app/success.html";
   }
 
   async function signInWithGoogle() {
