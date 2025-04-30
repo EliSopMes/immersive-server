@@ -16,8 +16,7 @@ export async function handler(event, context) {
     };
   }
 
-  // const ip = event.headers["x-forwarded-for"] || "unknown-ip"; // fallback if IP missing
-  // const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
   try {
     const jwt = event.headers.authorization?.replace("Bearer ", "");
     if (!jwt) {
@@ -34,12 +33,8 @@ export async function handler(event, context) {
         global: { headers: { Authorization: `Bearer ${jwt}` } }
       }
     );
-    console.log(supabaseUserClient)
-
 
     const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
-    console.log("after user")
-    console.log("User:", user, "Error:", userError)
 
     if (userError || !user) {
       return {
@@ -50,7 +45,6 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
-    console.log(userId)
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
     let { data, error } = await supabase
@@ -80,7 +74,6 @@ export async function handler(event, context) {
         .from("rate_limits")
         .insert({ user_id: userId, date: today, simplify_count: 1 });
     }
-    console.log("after updating database")
     const { text, level } = JSON.parse(event.body);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: 'POST',
