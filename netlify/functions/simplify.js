@@ -26,9 +26,8 @@ export async function handler(event, context) {
         headers,
         body: JSON.stringify({ error: "Missing or invalid token" })
       };
-    } else {
-      console.log(jwt)
     }
+
     const supabaseUserClient = createClient(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_ANON_KEY, // Only needed to decode the JWT
@@ -37,7 +36,11 @@ export async function handler(event, context) {
       }
     );
 
+    console.log(supabaseUserClient)
+
     const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
+    console.log("after user")
+    console.log("User:", user, "Error:", userError)
 
     if (userError || !user) {
       return {
@@ -48,7 +51,7 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
-
+    console.log(userId)
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
     let { data, error } = await supabase
@@ -78,7 +81,7 @@ export async function handler(event, context) {
         .from("rate_limits")
         .insert({ user_id: userId, date: today, simplify_count: 1 });
     }
-
+    console.log("after updating database")
     const { text, level } = JSON.parse(event.body);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: 'POST',
