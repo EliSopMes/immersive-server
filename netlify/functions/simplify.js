@@ -27,16 +27,15 @@ export async function handler(event, context) {
         body: JSON.stringify({ error: "Missing or invalid token" })
       };
     }
-
     const supabaseUserClient = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY, // Only needed to decode the JWT
+      process.env.SUPABASE_ANON, // Only needed to decode the JWT
       {
         global: { headers: { Authorization: `Bearer ${jwt}` } }
       }
     );
-
     console.log(supabaseUserClient)
+
 
     const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
     console.log("after user")
