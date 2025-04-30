@@ -145,11 +145,13 @@
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
+        // redirectTo: `http://127.0.0.1:5500/success.html`
         redirectTo: `https://immersive-server.netlify.app/success.html`
       }
     });
-
-    // This redirects the user to Google login
+    if (error) {
+      console.error("Signup error:", error.message);
+    }
   }
 
   const terms = document.getElementById('terms')

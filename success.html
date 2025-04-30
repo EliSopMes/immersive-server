@@ -25,3 +25,23 @@
     border-radius: 8px;
   }
 </style>
+<script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+    const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+    const token = session?.access_token;
+    if (token) {
+      window.opener?.postMessage(
+        {
+          type: "SUPABASE_TOKEN",
+          token: token,
+        },
+        "https://immersive-server.netlify.app/"
+        // "http://127.0.0.1:5500/index.html"
+      );
+    } else {
+      console.warn("No active session found.");
+    }
+  });
+</script>
