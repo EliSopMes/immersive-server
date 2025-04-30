@@ -54,7 +54,7 @@ export async function handler(event, context) {
       .maybeSingle();
 
 
-    if (selectError && selectError.code !== "PGRST116") {
+    if (selectedError && selectedError.code !== "PGRST116") {
       // Real error
       return { statusCode: 500, headers, body: JSON.stringify({ error: "Word check failed" }) };
     }
