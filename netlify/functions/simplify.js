@@ -23,6 +23,7 @@ export async function handler(event, context) {
   if (!jwt) {
     return {
       statusCode: 401,
+      headers,
       body: JSON.stringify({ error: "Missing or invalid token" })
     };
   }
@@ -39,6 +40,7 @@ export async function handler(event, context) {
   if (userError || !user) {
     return {
       statusCode: 401,
+      headers,
       body: JSON.stringify({ error: "Invalid token or user not found" })
     };
   }
@@ -56,11 +58,11 @@ export async function handler(event, context) {
 
   if (error && error.code !== "PGRST116") {
     // Real error
-    return { statusCode: 500, body: JSON.stringify({ error: "Rate check failed" }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: "Rate check failed" }) };
   }
 
   if (data && data.simplify_count >= 50) {
-    return { statusCode: 429, body: JSON.stringify({ error: "Rate limit exceeded" }) };
+    return { statusCode: 429, headers, body: JSON.stringify({ error: "Rate limit exceeded" }) };
   }
 
   if (data) {
