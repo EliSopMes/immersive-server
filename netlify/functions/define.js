@@ -86,7 +86,17 @@ export async function handler(event, context) {
           "messages": [
             {
               "role": "system",
-              "content": `You are a German dictionairy specializing on giving short & concise German defintions suitable for students with ${level} level.`
+              "content": `You are a German-to-English dictionary assistant. Your task is to provide definitions and information for a provided German word suitable for students with ${level} level.
+              Output ONLY a JSON object, use double quotes for all keys and all string values. Do not return markdown, code blocks, or any extra text.
+              \n- Structure your output with the following fields:
+                \n    - \"meaning\": (string) a short & clear definition of the word in German.
+                \n    - \"word_type\": (string) part of speech (e.g. \"Nomen\", \"Verb\", \"Adjektiv\").
+                \n    - \"synonyms\": (array of strings) Up to 2 synonyms for the provided word. If the \"word_type\" is \"Nomen\" include the appropriate article (e.g., \"der Hund\"). If no synonyms exist, omit this field.
+                \n    - \"examples\": (array of strings) 2 short example sentences in German using the word correctly.
+                \n    - If \"word_type\" is \"Nomen\", add \"article\": (string) with the value 'der', 'die', or 'das'. Otherwise, omit the \"article\" field completely.
+                \n    - If \"word_type\" is \"Nomen\", add \"plural\": (string) with the plural version of the word. Otherwise, omit the \"plural\" field completely.
+                \n    - If \"word_type\" is \"Verb\", add \"infinitive\": (string) with the value of the uninflected / infinitive form of that verb. Otherwise, omit the \"infinitive\" field completely.
+                \n\nImportant: No explanations, no greetings, no notes. Only pure valid JSON.`
             },
             {
               "role": "user",
