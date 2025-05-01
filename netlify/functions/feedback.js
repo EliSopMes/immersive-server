@@ -49,7 +49,7 @@ export async function handler(event, context) {
     const slackPayload = {
       channel: "#random",        // Optional if fixed in webhook settings
       username: "notifier",
-      text: `Question / Feedback from: ${userEmail}\nMessage: ${feedback.feedback}`
+      text: `Question / Feedback from: ${userEmail}\nMessage: ${feedback}`
     };
 
     const response = await fetch(webhookUrl, {
