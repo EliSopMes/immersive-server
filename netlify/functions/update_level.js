@@ -46,14 +46,19 @@ export async function handler(event, context) {
     const userId = user.id;
     const { level } = JSON.parse(event.body);
 
-    const { error: updateError } = await supabase
+    const { error: upsertError } = await supabase
       .from("profiles")
-      .update({ level })
-      .eq("id", userId);
+      .upsert(
+        { id: userId, level },
+        { onConflict: 'id' }  // ensures update if the row already exists
+      );
 
-    if (updateError && updateError.code !== "PGRST116") {
-      // Real error
-      return { statusCode: 500, headers, body: JSON.stringify({ error: "Update failed" }) };
+    if (upsertError) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: "Upsert failed", details: upsertError.message })
+      };
     }
 
     return {
