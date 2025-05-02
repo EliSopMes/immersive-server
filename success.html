@@ -34,17 +34,27 @@
     const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-      window.opener?.postMessage(
-        {
-          type: "SUPABASE_SESSION",
-          session: session,
-        },
-        "https://immersive-server.netlify.app/"
-        // "http://127.0.0.1:5500/index.html"
-      );
-    } else {
-      console.warn("No active session found.");
-    }
+      const token = session.access_token;
+      const refreshToken = session.refresh_token;
+      if (session) {
+        window.opener?.postMessage(
+          {
+            type: "SUPABASE_TOKEN",
+            token: token,
+          },
+          "https://immersive-server.netlify.app/"
+          // "http://127.0.0.1:5500/index.html"
+        );
+        window.opener?.postMessage(
+          {
+            type: "REFRESH_TOKEN",
+            refresh_token: refreshToken,
+          },
+          "https://immersive-server.netlify.app/"
+          // "http://127.0.0.1:5500/index.html"
+        );
+      } else {
+        console.warn("No active session found.");
+      }
   });
 </script>
