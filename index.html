@@ -125,14 +125,13 @@
     }
 
     const session = data.session;
-    const token = session?.access_token;
-    if (token) {
+    if (session) {
       window.postMessage(
         {
-          type: "SUPABASE_TOKEN",
-          token: token,
+          type: "SUPABASE_SESSION",
+          session: session,
         },
-        // "http://127.0.0.1:5500/index.html"
+        // "http://127.0.0.1:5500"
         "https://immersive-server.netlify.app/"
       );
     } else {
