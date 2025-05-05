@@ -44,7 +44,7 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
-    const { original_word, translated_word } = JSON.parse(event.body);
+    const { original_word, translated_word, word_type } = JSON.parse(event.body);
 
     const { data: existing, error: selectedError } = await supabase
       .from("saved_words")
@@ -65,7 +65,7 @@ export async function handler(event, context) {
 
     const { error: insertError } = await supabase
       .from("saved_words")
-      .insert({ user_id: userId, original_word, translated_word });
+      .insert({ user_id: userId, original_word, translated_word, word_type });
 
     if (insertError) {
       return { statusCode: 500, headers, body: JSON.stringify({ error: insertError.message }) };
