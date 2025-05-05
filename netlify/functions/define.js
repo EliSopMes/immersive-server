@@ -90,6 +90,7 @@ export async function handler(event, context) {
               Output ONLY a JSON object, use double quotes for all keys and all string values. Do not return markdown, code blocks, or any extra text.
               \n- Structure your output with the following fields:
                 \n    - \"meaning\": (string) a short & clear definition of the word in German.
+                \n    - \"translation\": (string) the translated word in English.
                 \n    - \"word_type\": (string) part of speech (e.g. \"Nomen\", \"Verb\", \"Adjektiv\").
                 \n    - \"synonyms\": (array of strings) Up to 2 synonyms for the provided word. If the \"word_type\" is \"Nomen\" include the appropriate article (e.g., \"der Hund\"). If no synonyms exist, omit this field.
                 \n    - \"examples\": (array of strings) 2 short example sentences in German using the word correctly.
