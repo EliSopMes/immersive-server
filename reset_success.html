@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Translator</title>
-    <script src="popup.js" defer></script>
+    <title>Password reset success</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -10,64 +9,9 @@
   <body>
     <img src="/logo.png" alt="logo" height="100" style="position: absolute; top: 0; left: 0;">
     <div class="form-container center-div-content">
-      <h1>Let's get started</h1>
-      <a href="signin.html">I already have an account</a>
-      <br><br>
-      <p id="error-message" style="display: none; color: rgb(255, 15, 75);"></p>
-      <form id="signup-form">
-        <input
-          id="email"
-          type="email"
-          required
-          placeholder="Email Address"
-          autocomplete="email"
-        >
-        <br>
-        <input
-          id="password"
-          type="password"
-          required
-          placeholder="Enter a chosen password"
-          autocomplete="new-password"
-        >
-        <br>
-        <br>
-        <label id="checkbox-input">
-          <input
-            id = "terms"
-            type="checkbox"
-          >
-          <span style="font-size: 15px;">
-            I have read and agree to the
-            <a
-              href="https://joinimmersive.com/privacy-policy/"
-            >
-              Privacy Policy
-            </a>
-            and
-            <a
-              href="https://joinimmersive.com/terms-of-service/"
-            >
-              Terms and Conditions
-            </a></span>
-        </label>
-        <br>
-        <label id="checkbox-input">
-          <input type="checkbox"> <span style="font-size: 15px;">I want to get email updates from Immersive</span>
-        </label>
-        <br><br>
-        <button
-          id="signup-btn"
-          type="submit"
-          style="background-color: grey;"
-          disabled
-        >
-          Sign up
-        </button>
-      </form>
-      <p>or continue with</p>
+      <h1>Password reset successful!</h1>
       <br>
-      <button id="google-signup">Google</button>
+      <button><a href="/signin.html">Redirect to log in</a></button>
     </div>
   </body>
 </html>
@@ -77,7 +21,8 @@
     color: white;
 
     a {
-      color: aqua;
+      text-decoration: none;
+      color: black;
     }
   }
 
@@ -124,15 +69,12 @@
 
     if (error) {
       console.error("Signup error:", error.message);
-      const errorMessage = document.getElementById('error-message');
-      errorMessage.innerText = error.message;
-      errorMessage.style.display = 'block'
     }
 
     const session = data.session;
-    const expiration = session.expires_at;
     const token = session.access_token;
     const refreshToken = session.refresh_token;
+    const expiration = session.expires_at;
     if (token && refreshToken) {
       window.postMessage(
         {

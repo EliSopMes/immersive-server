@@ -7,16 +7,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
   </head>
   <body>
+    <img src="/logo.png" alt="logo" height="100" style="position: absolute; top: 0; left: 0;">
     <div class="form-container center-div-content">
-      <h2>You have successfully signed in.</h2>
-      <h3>You should pin the Immersive extension, to easily access features.</h3>
-      <h3>You can close this tab or use it to start immersing.</h3>
+      <h2>Welcome to join immersive!</h2>
+      <h3>📌 Pin the Immersive extension</h3>
+      <h3><a href="">More information on the immersive extension</a></h3>
     </div>
   </body>
 </html>
 <style>
+    body {
+    background-color: black;
+    color: white;
+
+    a {
+      color: aqua;
+    }
+  }
+
   .form-container {
-    margin: 50px auto;
+    margin: 100px auto 0px auto;
     text-align: center;
     font-family: 'Poppins', sans-serif;
     padding: 20px;
@@ -36,6 +46,7 @@
     supabase.auth.getSession().then(({ data: { session } }) => {
       const token = session.access_token;
       const refreshToken = session.refresh_token;
+      const expiration = session.expires_at;
       if (session) {
         window.opener?.postMessage(
           {
@@ -49,6 +60,14 @@
           {
             type: "REFRESH_TOKEN",
             refresh_token: refreshToken,
+          },
+          "https://immersive-server.netlify.app/"
+          // "http://127.0.0.1:5500/index.html"
+        );
+        window.opener?.postMessage(
+          {
+            type: "EXPIRATION",
+            expires_at: expiration,
           },
           "https://immersive-server.netlify.app/"
           // "http://127.0.0.1:5500/index.html"
