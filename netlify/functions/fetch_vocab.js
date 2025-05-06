@@ -42,11 +42,16 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const isoOneWeekAgo = oneWeekAgo.toISOString();
 
     const { data, error } = await supabaseUserClient
       .from("saved_words")
       .select("*")
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .gte("created_at", isoOneWeekAgo)
+      .order("created_at", { ascending: false });
 
     if (error && error.code !== "PGRST116") {
       // Real error
