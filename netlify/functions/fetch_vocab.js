@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY); // Service role key — only on server
+
 export async function handler(event, context) {
   const headers = {
     "Access-Control-Allow-Origin": "*", // or set a specific domain instead of '*'
@@ -50,7 +52,7 @@ export async function handler(event, context) {
     const isoOneWeekAgo = oneWeekAgo.toString();
     console.log(isoOneWeekAgo)
 
-    const { data, error } = await supabaseUserClient
+    const { data, error } = await supabase
       .from("saved_words")
       .select("*")
       .eq("user_id", userId)
