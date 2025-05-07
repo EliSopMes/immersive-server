@@ -130,44 +130,48 @@
       const errorMessage = document.getElementById('error-message');
       errorMessage.innerText = error.message;
       errorMessage.style.display = 'block'
+      return;
     }
 
-    const session = data.session;
-    const expiration = session.expires_at;
-    const token = session.access_token;
-    const refreshToken = session.refresh_token;
-    if (token && refreshToken) {
-      window.postMessage(
-        {
-          type: "SUPABASE_TOKEN",
-          token: token,
-        },
-        // "http://127.0.0.1:5500"
-        // or use your production origin
-        "https://immersive-server.netlify.app"
-      );
+    if (data.user && !data.session) {
+      alert("Check your email to confirm your account!");
+      window.location.href = "https://immersive-server.netlify.app/check_email.html";
+    } else if (data.session) {
+      // If we actually got a session (e.g., if email confirmation is disabled)
+      const session = data.session;
+      const expiration = session.expires_at;
+      const token = session.access_token;
+      const refreshToken = session.refresh_token;
+      if (token && refreshToken) {
+        window.postMessage(
+          {
+            type: "SUPABASE_TOKEN",
+            token: token,
+          },
+          // "http://127.0.0.1:5500"
+          "https://immersive-server.netlify.app"
+        );
 
-      window.postMessage(
-        {
-          type: "REFRESH_TOKEN",
-          refresh_token: refreshToken,
-        },
-        // "http://127.0.0.1:5500"
-        "https://immersive-server.netlify.app/"
-      );
+        window.postMessage(
+          {
+            type: "REFRESH_TOKEN",
+            refresh_token: refreshToken,
+          },
+          // "http://127.0.0.1:5500"
+          "https://immersive-server.netlify.app/"
+        );
 
-      window.postMessage(
-        {
-          type: "EXPIRATION",
-          expires_at: expiration,
-        },
-        // "http://127.0.0.1:5500"
-        "https://immersive-server.netlify.app/"
-      );
-    } else {
-      console.warn("No session returned — email may need to be confirmed.");
+        window.postMessage(
+          {
+            type: "EXPIRATION",
+            expires_at: expiration,
+          },
+          // "http://127.0.0.1:5500"
+          "https://immersive-server.netlify.app/"
+        );
+      }
+      window.location.href = "https://immersive-server.netlify.app/success.html";
     }
-    window.location.href = "https://immersive-server.netlify.app/success.html";
   }
 
   async function signInWithGoogle() {

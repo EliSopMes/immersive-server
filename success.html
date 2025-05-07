@@ -44,17 +44,42 @@
     import { createClient } from 'https://esm.sh/@supabase/supabase-js'
     const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const token = session.access_token;
-      const refreshToken = session.refresh_token;
-      const expiration = session.expires_at;
-      if (session) {
-        console.log(expiration)
-        window.postMessage({ type: "SUPABASE_TOKEN", token: token }, "https://immersive-server.netlify.app");
-        window.postMessage({ type: "REFRESH_TOKEN", refresh_token: refreshToken }, "https://immersive-server.netlify.app");
-        window.postMessage({ type: "EXPIRATION", expires_at: expiration }, "https://immersive-server.netlify.app");
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    if (accessToken && refreshToken) {
+      // ✅ Set the session
+      const { data, error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+
+      if (error) {
+        console.error("Session set error:", error.message);
       } else {
-        console.warn("No active session found.");
+        console.log("Session set successfully:", data);
+
+        // ✅ Now you have a full session, you can store it:
+        window.postMessage({ type: "SUPABASE_TOKEN", token: accessToken }, "https://immersive-server.netlify.app");
+        window.postMessage({ type: "REFRESH_TOKEN", refresh_token: refreshToken }, "https://immersive-server.netlify.app");
+        window.postMessage({ type: "EXPIRATION", expires_at: data.session.expires_at }, "https://immersive-server.netlify.app");
+
+        // ✅ Optional: redirect or show success message
+        console.log("User is authenticated!");
       }
-  });
+    } else {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        const token = session.access_token;
+        const refreshToken = session.refresh_token;
+        const expiration = session.expires_at;
+        if (session) {
+          console.log(expiration)
+          window.postMessage({ type: "SUPABASE_TOKEN", token: token }, "https://immersive-server.netlify.app");
+          window.postMessage({ type: "REFRESH_TOKEN", refresh_token: refreshToken }, "https://immersive-server.netlify.app");
+          window.postMessage({ type: "EXPIRATION", expires_at: expiration }, "https://immersive-server.netlify.app");
+        } else {
+          console.warn("No active session found.");
+        }
+      });
+    }
 </script>
