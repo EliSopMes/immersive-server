@@ -87,6 +87,7 @@ export async function handler(event, context) {
             {
               "role": "system",
               "content": `You are a German-to-English dictionary assistant. Your task is to provide definitions and information for a provided German word suitable for students with ${level} level.
+              Beware of compound words in German.
               Output ONLY a JSON object, use double quotes for all keys and all string values. Do not return markdown, code blocks, or any extra text.
               \n- Structure your output with the following fields:
                 \n    - \"meaning\": (string) a short & clear definition of the word in German.
