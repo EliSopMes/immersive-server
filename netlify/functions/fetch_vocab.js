@@ -49,7 +49,7 @@ export async function handler(event, context) {
     console.log(oneWeek)
     const oneWeekAgo =  oneWeek.setDate(oneWeek.getDate() - 7);
     console.log(oneWeekAgo)
-    const isoOneWeekAgo = oneWeekAgo.toString();
+    const isoOneWeekAgo = oneWeekAgo.toISOString();
     console.log(isoOneWeekAgo)
 
     const { data, error } = await supabase
