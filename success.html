@@ -45,9 +45,14 @@
     const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
 
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log(data)
+      console.log(session)
       const token = session.access_token;
+      console.log(token)
       const refreshToken = session.refresh_token;
+      console.log(refreshToken)
       const expiration = session.expires_at;
+      console.log(expiration)
       if (session) {
         window.opener?.postMessage(
           {
