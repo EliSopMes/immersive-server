@@ -61,7 +61,7 @@ export async function handler(event, context) {
 
     if (error && error.code !== "PGRST116") {
       // Real error
-      return { statusCode: 500, headers, body: JSON.stringify({ error: "Word check failed" }) };
+      return { statusCode: 500, headers, body: JSON.stringify({ error: error }) };
     }
 
     return {
