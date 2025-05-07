@@ -42,9 +42,13 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    console.log(userId)
+    const oneWeek = new Date();
+    console.log(oneWeek)
+    const oneWeekAgo =  oneWeek.setDate(oneWeek.getDate() - 7);
+    console.log(oneWeekAgo)
     const isoOneWeekAgo = oneWeekAgo.toISOString();
+    console.log(isoOneWeekAgo)
 
     const { data, error } = await supabaseUserClient
       .from("saved_words")
