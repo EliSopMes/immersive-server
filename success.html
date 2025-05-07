@@ -45,39 +45,14 @@
     const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log(data)
-      console.log(session)
       const token = session.access_token;
-      console.log(token)
       const refreshToken = session.refresh_token;
-      console.log(refreshToken)
       const expiration = session.expires_at;
-      console.log(expiration)
       if (session) {
-        window.opener?.postMessage(
-          {
-            type: "SUPABASE_TOKEN",
-            token: token,
-          },
-          "https://immersive-server.netlify.app/"
-          // "http://127.0.0.1:5500/index.html"
-        );
-        window.opener?.postMessage(
-          {
-            type: "REFRESH_TOKEN",
-            refresh_token: refreshToken,
-          },
-          "https://immersive-server.netlify.app/"
-          // "http://127.0.0.1:5500/index.html"
-        );
-        window.opener?.postMessage(
-          {
-            type: "EXPIRATION",
-            expires_at: expiration,
-          },
-          "https://immersive-server.netlify.app/"
-          // "http://127.0.0.1:5500/index.html"
-        );
+        console.log(expiration)
+        window.postMessage({ type: "SUPABASE_TOKEN", token: token }, "https://immersive-server.netlify.app");
+        window.postMessage({ type: "REFRESH_TOKEN", refresh_token: refreshToken }, "https://immersive-server.netlify.app");
+        window.postMessage({ type: "EXPIRATION", expires_at: expiration }, "https://immersive-server.netlify.app");
       } else {
         console.warn("No active session found.");
       }
