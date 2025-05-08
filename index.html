@@ -123,6 +123,9 @@
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        redirectTo: "https://immersive-server.netlify.app/success.html"
+      }
     });
 
     if (error) {

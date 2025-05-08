@@ -43,7 +43,6 @@ export async function handler(event, context) {
 
     const userEmail = user.email;
     const { feedback } = JSON.parse(event.body);
-    console.log(feedback)
 
     const webhookUrl = process.env.WEBHOOK_URL;
     const slackPayload = {

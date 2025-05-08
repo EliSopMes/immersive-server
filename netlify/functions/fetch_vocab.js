@@ -44,12 +44,9 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
-    console.log(userId)
     const oneWeek = new Date();
-    console.log(oneWeek)
     oneWeek.setDate(oneWeek.getDate() - 7);
     const isoOneWeekAgo = oneWeek.toISOString();
-    console.log(isoOneWeekAgo)
 
     const { data, error } = await supabase
       .from("saved_words")

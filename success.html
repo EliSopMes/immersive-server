@@ -62,7 +62,6 @@
         window.postMessage({ type: "EXPIRATION", expires_at: session.expires_at }, "https://immersive-server.netlify.app");
 
         sessionHandled = true; // Prevent double execution
-        console.log(sessionHandled)
       }
     }
 
@@ -74,29 +73,4 @@
 
     const { data: { session } } = await supabase.auth.getSession();
     await handleSession(session);
-
-    // supabase.auth.onAuthStateChange(async (event, session) => {
-    //   if (event === "SIGNED_IN" && session) {
-    //     console.log("✅ User authenticated, session received:", session);
-    //     clearTimeout(errorTimeout);
-    //     window.postMessage({ type: "SUPABASE_TOKEN", token: session.access_token }, "https://immersive-server.netlify.app");
-    //     window.postMessage({ type: "REFRESH_TOKEN", refresh_token: session.refresh_token }, "https://immersive-server.netlify.app");
-    //     window.postMessage({ type: "EXPIRATION", expires_at: session.expires_at }, "https://immersive-server.netlify.app");
-    //   }
-    // });
-
-    // await supabase.auth.getSession().then(({ data: { session } }) => {
-    //   console.log("google")
-    //   const token = session.access_token;
-    //   const refreshToken = session.refresh_token;
-    //   const expiration = session.expires_at;
-    //   if (session) {
-    //     console.log(expiration)
-    //     window.postMessage({ type: "SUPABASE_TOKEN", token: token }, "https://immersive-server.netlify.app");
-    //     window.postMessage({ type: "REFRESH_TOKEN", refresh_token: refreshToken }, "https://immersive-server.netlify.app");
-    //     window.postMessage({ type: "EXPIRATION", expires_at: expiration }, "https://immersive-server.netlify.app");
-    //   } else {
-    //     console.warn("No active session found.");
-    //   }
-    // });
 </script>
