@@ -55,25 +55,14 @@
     async function handleSession(session) {
       if (session && !sessionHandled) {
         console.log("✅ User authenticated, session received:", session);
-
-        // Store it in chrome storage
-        // chrome.storage.local.set({
-        //   supabaseSession: {
-        //     token: session.access_token,
-        //     refreshToken: session.refresh_token,
-        //     expiration: session.expires_at,
-        //   }
-        // }, () => {
-        //   console.log("✅ Session stored in extension storage");
-        // });
-
+        clearTimeout(errorTimeout); // Stop the error handler
       // Post to the page (if required)
         window.postMessage({ type: "SUPABASE_TOKEN", token: session.access_token }, "https://immersive-server.netlify.app");
         window.postMessage({ type: "REFRESH_TOKEN", refresh_token: session.refresh_token }, "https://immersive-server.netlify.app");
         window.postMessage({ type: "EXPIRATION", expires_at: session.expires_at }, "https://immersive-server.netlify.app");
 
-        clearTimeout(errorTimeout); // Stop the error handler
         sessionHandled = true; // Prevent double execution
+        console.log(sessionHandled)
       }
     }
 
