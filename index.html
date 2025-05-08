@@ -135,6 +135,7 @@
 
     if (data.user && !data.session) {
       alert("Check your email to confirm your account!");
+      // window.location.href = "http://127.0.0.1:5500/check_email.html";
       window.location.href = "https://immersive-server.netlify.app/check_email.html";
     } else if (data.session) {
       // If we actually got a session (e.g., if email confirmation is disabled)
@@ -171,6 +172,7 @@
         );
       }
       window.location.href = "https://immersive-server.netlify.app/success.html";
+      // window.location.href = "http://127.0.0.1:5500/success.html";
     }
   }
 

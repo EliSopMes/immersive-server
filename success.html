@@ -44,42 +44,70 @@
     import { createClient } from 'https://esm.sh/@supabase/supabase-js'
     const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
 
-    const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get('access_token');
-    const refreshToken = params.get('refresh_token');
-    if (accessToken && refreshToken) {
-      // ✅ Set the session
-      const { data, error } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken
-      });
+    let errorTimeout = setTimeout(() => {
+      console.error("❌ Authentication failed.");
+      alert("Failed to verify. Please try again.");
+      window.location.href = "https://immersive-server.netlify.app/";
+    }, 2000);
 
-      if (error) {
-        console.error("Session set error:", error.message);
-      } else {
-        console.log("Session set successfully:", data);
+    let sessionHandled = false;
 
-        // ✅ Now you have a full session, you can store it:
-        window.postMessage({ type: "SUPABASE_TOKEN", token: accessToken }, "https://immersive-server.netlify.app");
-        window.postMessage({ type: "REFRESH_TOKEN", refresh_token: refreshToken }, "https://immersive-server.netlify.app");
-        window.postMessage({ type: "EXPIRATION", expires_at: data.session.expires_at }, "https://immersive-server.netlify.app");
+    async function handleSession(session) {
+      if (session && !sessionHandled) {
+        console.log("✅ User authenticated, session received:", session);
 
-        // ✅ Optional: redirect or show success message
-        console.log("User is authenticated!");
+        // Store it in chrome storage
+        // chrome.storage.local.set({
+        //   supabaseSession: {
+        //     token: session.access_token,
+        //     refreshToken: session.refresh_token,
+        //     expiration: session.expires_at,
+        //   }
+        // }, () => {
+        //   console.log("✅ Session stored in extension storage");
+        // });
+
+      // Post to the page (if required)
+        window.postMessage({ type: "SUPABASE_TOKEN", token: session.access_token }, "https://immersive-server.netlify.app");
+        window.postMessage({ type: "REFRESH_TOKEN", refresh_token: session.refresh_token }, "https://immersive-server.netlify.app");
+        window.postMessage({ type: "EXPIRATION", expires_at: session.expires_at }, "https://immersive-server.netlify.app");
+
+        clearTimeout(errorTimeout); // Stop the error handler
+        sessionHandled = true; // Prevent double execution
       }
-    } else {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        const token = session.access_token;
-        const refreshToken = session.refresh_token;
-        const expiration = session.expires_at;
-        if (session) {
-          console.log(expiration)
-          window.postMessage({ type: "SUPABASE_TOKEN", token: token }, "https://immersive-server.netlify.app");
-          window.postMessage({ type: "REFRESH_TOKEN", refresh_token: refreshToken }, "https://immersive-server.netlify.app");
-          window.postMessage({ type: "EXPIRATION", expires_at: expiration }, "https://immersive-server.netlify.app");
-        } else {
-          console.warn("No active session found.");
-        }
-      });
     }
+
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN") {
+        await handleSession(session);
+      }
+    });
+
+    const { data: { session } } = await supabase.auth.getSession();
+    await handleSession(session);
+
+    // supabase.auth.onAuthStateChange(async (event, session) => {
+    //   if (event === "SIGNED_IN" && session) {
+    //     console.log("✅ User authenticated, session received:", session);
+    //     clearTimeout(errorTimeout);
+    //     window.postMessage({ type: "SUPABASE_TOKEN", token: session.access_token }, "https://immersive-server.netlify.app");
+    //     window.postMessage({ type: "REFRESH_TOKEN", refresh_token: session.refresh_token }, "https://immersive-server.netlify.app");
+    //     window.postMessage({ type: "EXPIRATION", expires_at: session.expires_at }, "https://immersive-server.netlify.app");
+    //   }
+    // });
+
+    // await supabase.auth.getSession().then(({ data: { session } }) => {
+    //   console.log("google")
+    //   const token = session.access_token;
+    //   const refreshToken = session.refresh_token;
+    //   const expiration = session.expires_at;
+    //   if (session) {
+    //     console.log(expiration)
+    //     window.postMessage({ type: "SUPABASE_TOKEN", token: token }, "https://immersive-server.netlify.app");
+    //     window.postMessage({ type: "REFRESH_TOKEN", refresh_token: refreshToken }, "https://immersive-server.netlify.app");
+    //     window.postMessage({ type: "EXPIRATION", expires_at: expiration }, "https://immersive-server.netlify.app");
+    //   } else {
+    //     console.warn("No active session found.");
+    //   }
+    // });
 </script>
