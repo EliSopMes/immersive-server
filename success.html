@@ -65,11 +65,34 @@
       }
     }
 
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN") {
-        await handleSession(session);
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const type = urlParams.get('type');
+
+    if (token && type === 'signup') {
+      console.log("🔄 Verifying email confirmation...");
+
+      // ✅ Step 1: Verify the token with Supabase
+      const { data, error } = await supabase.auth.verifyOTP({ token, type: 'signup' });
+
+      if (error) {
+        console.error("❌ Email verification failed:", error.message);
+        alert("Verification failed. Please try again.");
+      } else {
+        console.log("✅ Email successfully verified with Supabase.");
+
+        // ✅ Step 2: Get the current session (user is now confirmed)
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          console.error("❌ Failed to retrieve session after confirmation:", sessionError.message);
+        } else {
+          await handleSession(session);
+        }
       }
-    });
+    } else {
+      console.error("❌ Missing URL parameters for authentication.");
+    }
 
     const { data: { session } } = await supabase.auth.getSession();
     await handleSession(session);

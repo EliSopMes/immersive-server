@@ -98,7 +98,15 @@
   const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
 
   async function signinWithEmail(email, password) {
-    const { data, error } = await supabase.auth.signIn({
+    if (!email || !password) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: "Email and password are required for login." }),
+      };
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -108,17 +116,28 @@
       const errorMessage = document.getElementById('error-message');
       errorMessage.innerText = error.message;
       errorMessage.style.display = 'block'
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: error.message }),
+      };
     }
 
-    const session = data.session;
-    const token = session.access_token;
-    const refreshToken = session.refresh_token;
-    const expiration = session.expires_at;
-    if (token && refreshToken) {
+    const { session } = data;
+    if (!session) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: "Authentication failed. No session returned." }),
+      };
+    }
+    const { access_token, refresh_token, expires_at } = session;
+
+    if (access_token && refresh_token) {
       window.postMessage(
         {
           type: "SUPABASE_TOKEN",
-          token: token,
+          token: access_token,
         },
         // "http://127.0.0.1:5500"
         // or use your production origin
@@ -128,7 +147,7 @@
       window.postMessage(
         {
           type: "REFRESH_TOKEN",
-          refresh_token: refreshToken,
+          refresh_token: refresh_token,
         },
         // "http://127.0.0.1:5500"
         "https://immersive-server.netlify.app/"
@@ -137,7 +156,7 @@
       window.postMessage(
         {
           type: "EXPIRATION",
-          expires_at: expiration,
+          expires_at: expires_at,
         },
         // "http://127.0.0.1:5500"
         "https://immersive-server.netlify.app/"
