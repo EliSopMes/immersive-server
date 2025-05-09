@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Verifying...</title>
+  </head>
+  <body>
+    <h2>Verifying your account...</h2>
+
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+
+      const supabase = createClient("https://gbxmuqfqwiehvsfwpouw.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieG11cWZxd2llaHZzZndwb3V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzNTI3NTIsImV4cCI6MjA1OTkyODc1Mn0.J_aP5NqxbosSYiWpSujYt3tKskCTKJpqpvju_QZ9oQU");
+
+      // ✅ 1. Listen for the Auth State Change
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === "SIGNED_IN" && session) {
+          console.log("✅ User authenticated, session received:", session);
+
+          // ✅ 2. Store in local storage
+          chrome.storage.local.set({ supabaseSession: session }, () => {
+            console.log("Session stored in extension storage");
+          });
+
+          chrome.runtime.sendMessage({ type: "user_signed_in", session });
+
+          // ✅ 3. Redirect to success page
+          window.location.href = "https://immersive-server.netlify.app/success.html";
+        } else {
+          console.error("❌ Authentication failed.");
+          alert("Failed to verify. Please try again.");
+          window.location.href = "https://immersive-server.netlify.app/";
+        }
+      });
+
+      // ✅ 4. Call this to trigger the session
+      await supabase.auth.getSession();
+    </script>
+  </body>
+</html>
