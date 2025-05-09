@@ -90,38 +90,46 @@
     }
   }
 
-  async function testUrl(url) {
-    const urlObj = new URL(url);
-    const urlParams = new URLSearchParams(urlObj.search);
-    console.log(url)
-    const token = urlParams.get('token');
-    console.log(token)
-    const type = urlParams.get('type');
-    console.log(type)
-
-    if (token && type === 'signup') {
-      console.log("🔄 Verifying email confirmation...");
-
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: email,
-        token: token,
-        type: 'email'
-      });
-
-      if (error) {
-        console.error("❌ Email verification failed:", error.message);
-        alert("Verification failed. Please try again.");
-      } else {
-
-        console.log(data)
-        handleSession(data.session)
-      }
-    } else {
-      console.error("❌ Missing URL parameters for authentication.");
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN") {
+      console.log("✅ User authenticated!", session);
+      handleSession(session)
     }
-  }
+  });
 
-  testUrl("https://gbxmuqfqwiehvsfwpouw.supabase.co/auth/v1/verify?token=931530&type=signup&redirect_to=https://immersive-server.netlify.app/success.html")
+
+  // async function testUrl(url) {
+  //   const urlObj = new URL(url);
+  //   const urlParams = new URLSearchParams(urlObj.search);
+  //   console.log(url)
+  //   const token = urlParams.get('token');
+  //   console.log(token)
+  //   const type = urlParams.get('type');
+  //   console.log(type)
+
+  //   if (token && type === 'signup') {
+  //     console.log("🔄 Verifying email confirmation...");
+
+  //     const { data, error } = await supabase.auth.verifyOtp({
+  //       email: email,
+  //       token: token,
+  //       type: 'email'
+  //     });
+
+  //     if (error) {
+  //       console.error("❌ Email verification failed:", error.message);
+  //       alert("Verification failed. Please try again.");
+  //     } else {
+
+  //       console.log(data)
+  //       handleSession(data.session)
+  //     }
+  //   } else {
+  //     console.error("❌ Missing URL parameters for authentication.");
+  //   }
+  // }
+
+  // testUrl("https://gbxmuqfqwiehvsfwpouw.supabase.co/auth/v1/verify?token=931530&type=signup&redirect_to=https://immersive-server.netlify.app/success.html")
 
 
   const { data: { session } } = await supabase.auth.getSession();
