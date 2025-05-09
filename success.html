@@ -43,7 +43,7 @@
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js'
   const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
-
+  const email = 'elisabethopinc@gmail.com';
   // async function testToken(email, token) {
   //   // const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'email'})
   //   const { data, error } = await supabase.auth.verifyOtp({
@@ -51,72 +51,78 @@
   //     token: token,
   //     type: 'email'
   //   });
+
+  //   if (error) {
+  //     console.error("❌ Email verification failed:", error.message);
+  //     alert("Verification failed. Please try again.");
+  //   } else {
+
+  //     console.log(data)
+  //     handleSession(data.session)
+  //   }
+
   //   console.log('Result:', { data, error });
   // }
 
   // // Replace with token from your email
-  // testToken('elisabethopinc@gmail.com', '075269');
+  // testToken('elisabethopinc@gmail.com', '398499');
 
 
-    let errorTimeout = setTimeout(() => {
-      console.error("❌ Authentication failed.");
-      alert("Failed to verify. Please try again.");
-      // window.location.href = "https://immersive-server.netlify.app/";
-    }, 3000);
+  let errorTimeout = setTimeout(() => {
+    console.error("❌ Authentication failed.");
+    alert("Failed to verify. Please try again.");
+    // window.location.href = "https://immersive-server.netlify.app/";
+  }, 3000);
 
-    let sessionHandled = false;
+  let sessionHandled = false;
 
-    async function handleSession(session) {
-      if (session && !sessionHandled) {
-        console.log("✅ User authenticated, session received:", session);
-        clearTimeout(errorTimeout); // Stop the error handler
-      // Post to the page (if required)
-        window.postMessage({ type: "SUPABASE_TOKEN", token: session.access_token }, "https://immersive-server.netlify.app");
-        window.postMessage({ type: "REFRESH_TOKEN", refresh_token: session.refresh_token }, "https://immersive-server.netlify.app");
-        window.postMessage({ type: "EXPIRATION", expires_at: session.expires_at }, "https://immersive-server.netlify.app");
+  async function handleSession(session) {
+    if (session && !sessionHandled) {
+      console.log("✅ User authenticated, session received:", session);
+      clearTimeout(errorTimeout); // Stop the error handler
+    // Post to the page (if required)
+      window.postMessage({ type: "SUPABASE_TOKEN", token: session.access_token }, "https://immersive-server.netlify.app");
+      window.postMessage({ type: "REFRESH_TOKEN", refresh_token: session.refresh_token }, "https://immersive-server.netlify.app");
+      window.postMessage({ type: "EXPIRATION", expires_at: session.expires_at }, "https://immersive-server.netlify.app");
 
-        sessionHandled = true; // Prevent double execution
-      }
+      sessionHandled = true; // Prevent double execution
     }
+  }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    console.log(urlParams)
+  async function testUrl(url) {
+    const urlObj = new URL(url);
+    const urlParams = new URLSearchParams(urlObj.search);
+    console.log(url)
     const token = urlParams.get('token');
     console.log(token)
     const type = urlParams.get('type');
     console.log(type)
 
-    const email = 'elisabethopinc@gmail.com';
-
     if (token && type === 'signup') {
       console.log("🔄 Verifying email confirmation...");
 
-      // ✅ Step 1: Verify the token with Supabase
       const { data, error } = await supabase.auth.verifyOtp({
         email: email,
         token: token,
-        type: 'email'  // Use 'email' instead of 'signup'
+        type: 'email'
       });
-      
+
       if (error) {
         console.error("❌ Email verification failed:", error.message);
         alert("Verification failed. Please try again.");
       } else {
-        console.log("✅ Email successfully verified with Supabase.");
 
-        // ✅ Step 2: Get the current session (user is now confirmed)
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-        if (sessionError) {
-          console.error("❌ Failed to retrieve session after confirmation:", sessionError.message);
-        } else {
-          await handleSession(session);
-        }
+        console.log(data)
+        handleSession(data.session)
       }
     } else {
       console.error("❌ Missing URL parameters for authentication.");
     }
+  }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    await handleSession(session);
+  testUrl(console.log(window.location.href))
+
+
+  const { data: { session } } = await supabase.auth.getSession();
+  await handleSession(session);
 </script>
