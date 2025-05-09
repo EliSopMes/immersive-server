@@ -66,8 +66,11 @@
     }
 
     const urlParams = new URLSearchParams(window.location.search);
+    console.log(urlParams)
     const token = urlParams.get('token');
+    console.log(token)
     const type = urlParams.get('type');
+    console.log(type)
 
     if (token && type === 'signup') {
       console.log("🔄 Verifying email confirmation...");
