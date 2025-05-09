@@ -41,14 +41,28 @@
   window.SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieG11cWZxd2llaHZzZndwb3V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzNTI3NTIsImV4cCI6MjA1OTkyODc1Mn0.J_aP5NqxbosSYiWpSujYt3tKskCTKJpqpvju_QZ9oQU";
 </script>
 <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
-    const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+  const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
+
+  // async function testToken(email, token) {
+  //   // const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'email'})
+  //   const { data, error } = await supabase.auth.verifyOtp({
+  //     email: email,
+  //     token: token,
+  //     type: 'email'
+  //   });
+  //   console.log('Result:', { data, error });
+  // }
+
+  // // Replace with token from your email
+  // testToken('elisabethopinc@gmail.com', '075269');
+
 
     let errorTimeout = setTimeout(() => {
       console.error("❌ Authentication failed.");
       alert("Failed to verify. Please try again.");
       // window.location.href = "https://immersive-server.netlify.app/";
-    }, 2000);
+    }, 3000);
 
     let sessionHandled = false;
 
@@ -72,12 +86,18 @@
     const type = urlParams.get('type');
     console.log(type)
 
+    const email = 'elisabethopinc@gmail.com';
+
     if (token && type === 'signup') {
       console.log("🔄 Verifying email confirmation...");
 
       // ✅ Step 1: Verify the token with Supabase
-      const { data, error } = await supabase.auth.verifyOTP({ token, type: 'signup' });
-
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email,
+        token: token,
+        type: 'email'  // Use 'email' instead of 'signup'
+      });
+      
       if (error) {
         console.error("❌ Email verification failed:", error.message);
         alert("Verification failed. Please try again.");
