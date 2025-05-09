@@ -41,6 +41,7 @@
   window.SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdieG11cWZxd2llaHZzZndwb3V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzNTI3NTIsImV4cCI6MjA1OTkyODc1Mn0.J_aP5NqxbosSYiWpSujYt3tKskCTKJpqpvju_QZ9oQU";
 </script>
 <script type="module">
+  console.log("🌐 Window Location Href:", window.location.href);
   import { createClient } from 'https://esm.sh/@supabase/supabase-js'
   const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
   const email = 'elisabethopinc@gmail.com';
@@ -120,7 +121,7 @@
     }
   }
 
-  testUrl(window.location.href)
+  testUrl("https://gbxmuqfqwiehvsfwpouw.supabase.co/auth/v1/verify?token=931530&type=signup&redirect_to=https://immersive-server.netlify.app/success.html")
 
 
   const { data: { session } } = await supabase.auth.getSession();
