@@ -12,7 +12,8 @@
       <h2>Welcome to join immersive!</h2>
       <h3>📌 Pin the Immersive extension</h3>
       <h3>Currently your German level is set to the default of A2. You can change it under "Language Level Setting" in the pinned extenion icon.</h3>
-      <h3><a href="">More information on the immersive extension</a></h3>
+      <iframe src="https://www.youtube.com/embed/a6vkUnFo3Hs" width="420" height="315" frameborder="0"></iframe>
+      <h3><a href="https://chromewebstore.google.com/detail/join-immersive/cfemdicggfmagbfennfpghapobgmgnaf">More information on the immersive extension</a></h3>
     </div>
   </body>
 </html>
@@ -44,30 +45,6 @@
   console.log("🌐 Window Location Href:", window.location.href);
   import { createClient } from 'https://esm.sh/@supabase/supabase-js'
   const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON);
-  const email = 'elisabethopinc@gmail.com';
-  // async function testToken(email, token) {
-  //   // const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'email'})
-  //   const { data, error } = await supabase.auth.verifyOtp({
-  //     email: email,
-  //     token: token,
-  //     type: 'email'
-  //   });
-
-  //   if (error) {
-  //     console.error("❌ Email verification failed:", error.message);
-  //     alert("Verification failed. Please try again.");
-  //   } else {
-
-  //     console.log(data)
-  //     handleSession(data.session)
-  //   }
-
-  //   console.log('Result:', { data, error });
-  // }
-
-  // // Replace with token from your email
-  // testToken('elisabethopinc@gmail.com', '398499');
-
 
   let errorTimeout = setTimeout(() => {
     console.error("❌ Authentication failed.");
@@ -96,41 +73,6 @@
       handleSession(session)
     }
   });
-
-
-  // async function testUrl(url) {
-  //   const urlObj = new URL(url);
-  //   const urlParams = new URLSearchParams(urlObj.search);
-  //   console.log(url)
-  //   const token = urlParams.get('token');
-  //   console.log(token)
-  //   const type = urlParams.get('type');
-  //   console.log(type)
-
-  //   if (token && type === 'signup') {
-  //     console.log("🔄 Verifying email confirmation...");
-
-  //     const { data, error } = await supabase.auth.verifyOtp({
-  //       email: email,
-  //       token: token,
-  //       type: 'email'
-  //     });
-
-  //     if (error) {
-  //       console.error("❌ Email verification failed:", error.message);
-  //       alert("Verification failed. Please try again.");
-  //     } else {
-
-  //       console.log(data)
-  //       handleSession(data.session)
-  //     }
-  //   } else {
-  //     console.error("❌ Missing URL parameters for authentication.");
-  //   }
-  // }
-
-  // testUrl("https://gbxmuqfqwiehvsfwpouw.supabase.co/auth/v1/verify?token=931530&type=signup&redirect_to=https://immersive-server.netlify.app/success.html")
-
 
   const { data: { session } } = await supabase.auth.getSession();
   await handleSession(session);
