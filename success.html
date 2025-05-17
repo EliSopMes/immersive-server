@@ -59,10 +59,11 @@
       console.log("✅ User authenticated, session received:", session);
       clearTimeout(errorTimeout); // Stop the error handler
     // Post to the page (if required)
-      window.postMessage({ type: "SUPABASE_TOKEN", token: session.access_token }, "https://immersive-server.netlify.app");
-      window.postMessage({ type: "REFRESH_TOKEN", refresh_token: session.refresh_token }, "https://immersive-server.netlify.app");
-      window.postMessage({ type: "EXPIRATION", expires_at: session.expires_at }, "https://immersive-server.netlify.app");
-
+      setTimeout(() => {
+        window.postMessage({ type: "SUPABASE_TOKEN", token: session.access_token }, "https://immersive-server.netlify.app");
+        window.postMessage({ type: "REFRESH_TOKEN", refresh_token: session.refresh_token }, "https://immersive-server.netlify.app");
+        window.postMessage({ type: "EXPIRATION", expires_at: session.expires_at }, "https://immersive-server.netlify.app");
+      }, 1000);
       sessionHandled = true; // Prevent double execution
     }
   }
