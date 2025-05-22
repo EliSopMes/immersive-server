@@ -115,10 +115,36 @@ export async function handler(event, context) {
     });
 
     const openaiData = await response.json();
+    const rawContent = openaiData.choices?.[0]?.message?.content;
+
+    if (!rawContent) {
+      throw new Error("No content returned from OpenAI");
+    }
+
+    const cleanedContent = rawContent.trim().replace(/^```json\s*|\s*```$/g, "");
+
+    let simplified;
+    try {
+      simplified = JSON.parse(cleanedContent);
+    } catch (jsonError) {
+      console.error("JSON parse error:", jsonError.message);
+      console.error("Raw OpenAI content:", rawContent);
+      console.error("Cleaned content:", cleanedContent);
+
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({
+          error: "Invalid JSON returned by OpenAI",
+          details: jsonError.message,
+          raw: cleanedContent,
+        }),
+      };
+    }
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ simplified: openaiData.choices[0].message.content })
+      body: JSON.stringify({ simplified })
     }
   } catch (error) {
     return {
