@@ -86,27 +86,31 @@ export async function handler(event, context) {
           "messages": [
             {
               "role": "system",
-              "content": `You are a German-to-English dictionary assistant. Your task is to provide definitions and information for a provided German word suitable for students with ${level} level.
-              Beware of compound words in German.
-              Output ONLY a JSON object, use double quotes for all keys and all string values. Do not return markdown, code blocks, or any extra text.
-              \n- Structure your output with the following fields:
-                \n    - \"meaning\": (string) a short & clear definition of the word in German.
-                \n    - \"translation\": (string) the translated word in English.
-                \n    - \"word_type\": (string) part of speech (e.g. \"Nomen\", \"Verb\", \"Adjektiv\").
-                \n    - \"synonyms\": (array of strings) Up to 2 synonyms for the provided word. If the \"word_type\" is \"Nomen\" include the appropriate article (e.g., \"der Hund\"). If no synonyms exist, omit this field.
-                \n    - \"examples\": (array of strings) 2 short example sentences in German using the word correctly.
-                \n    - If \"word_type\" is \"Nomen\", add \"article\": (string) with the value 'der', 'die', or 'das'. Otherwise, omit the \"article\" field completely.
-                \n    - If \"word_type\" is \"Nomen\", add \"plural\": (string) with the plural version of the word. Otherwise, omit the \"plural\" field completely.
-                \n    - If \"word_type\" is \"Verb\", add \"infinitive\": (string) with the value of the uninflected / infinitive form of that verb. Otherwise, omit the \"infinitive\" field completely.
-                \n\nImportant: No explanations, no greetings, no notes. Only pure valid JSON.`
+              "content": `You are a German-to-English dictionary assistant. Your task is to provide clear, beginner-friendly (${level} German level) information about the given German word.
+              Your output must follow these formatting and content rules strictly:
+              1. Always output ONLY a valid JSON object.
+              2. Use double quotes for all keys and string values.
+              3. Never return markdown, code blocks, backticks, or extra text.
+              \n- JSON structure:
+                \n    - \"meaning\": (string) a short, clear definition in German (max 15 words)
+                \n    - \"translation\": (string) the English translation.
+                \n    - \"word_type\": (string) the part of speech (e.g. \"Nomen\", \"Verb\", \"Adjektiv\").
+                \n    - \"synonyms\": (array of strings) up to 2 synonyms. Omit this field if none exist. If "word_type" is "Nomen", include the article in the synonyms (e.g. "die Katze").
+                \n    - \"examples\": (array of strings) two short example sentences in German using the word correctly.
+                \n    - If \"word_type\" is \"Nomen\", also include:
+                          - "article": (string) one of "der", "die", "das"
+                          - "plural": (string) the plural form
+                \n    - If \"word_type\" is \"Verb\", also include:
+                          - "infinitive": (string) the infinitive form
+                \n\nImportant: Do not include any explanation, formatting, or extra characters. Only return a raw JSON object with the above structure.`
             },
             {
               "role": "user",
-              "content": `Was ist die Definition von: ${text}. Gib nur die Definition zurück, ohne weitere Erklärungen`
+              "content": `Gib mir die Informationen zu folgendem Wort: ${text}`
             }
           ],
-          max_tokens: 100,
-          temperature: 0.5
+          max_tokens: 300,
+          temperature: 0.3
         })
     });
 

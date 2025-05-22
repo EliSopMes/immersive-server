@@ -73,7 +73,7 @@ export async function handler(event, context) {
         .from("rate_limits")
         .insert({ user_id: userId, date: today, translate_count: 1 });
     }
-    const { text, level } = JSON.parse(event.body);
+    const { text } = JSON.parse(event.body);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: 'POST',
         headers: {
@@ -85,9 +85,10 @@ export async function handler(event, context) {
           "messages": [
             {
               "role": "system",
-              "content": `You are a German-to-English dictionary assistant. Your task is to translate the provided German text into English.
-              Always strictly output a valid JSON object with double quotes around both keys and string values,
-              with no text before or after. Follow these rules exactly:
+              "content": `You are a German-to-English dictionary assistant. Before doing anything else, first check whether the provided text is in German.
+              - If the input text is NOT German, immediately respond with the exact string: "not german" (no punctuation, no quotes, no JSON).
+              - If the text IS German, Your task is to translate the provided German text into English. Return a valid JSON object with double quotes around all keys and string values. Do not return any text outside the JSON.
+              Follow these rules exactly:
               \n\n- Output ONLY a JSON object, nothing else (no markdown, no code blocks, no backticks).
               \n- Fields for a single word:
                 \n    - \"translation\": (string) the English translation.
@@ -109,6 +110,13 @@ export async function handler(event, context) {
     });
 
     const openaiData = await response.json();
+    if (openaiData === "not german") {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ not_german: 'Currently available for translating from German to English' })
+      }
+    }
     return {
       statusCode: 200,
       headers,
