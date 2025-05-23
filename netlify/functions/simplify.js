@@ -86,7 +86,10 @@ export async function handler(event, context) {
           "messages": [
             {
               "role": "system",
-              "content": `You are a German language tutor specializing on transforming complicated German words & sentences into ${level} level.`
+              "content": `You are a German language tutor.
+              Before doing anything else, first check whether the provided text is in German.
+              - If the input text is NOT German, immediately respond with the exact string: "not german" (no punctuation, no quotes, no JSON).
+              - If the text IS German, Your task is to transform complicated German words & sentences into ${level} level.`
             },
             {
               "role": "user",
@@ -99,6 +102,13 @@ export async function handler(event, context) {
     });
 
     const openaiData = await response.json();
+    if (openaiData === "not german") {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ not_german: 'Currently available for translating from German to English' })
+      }
+    }
     return {
       statusCode: 200,
       headers,
