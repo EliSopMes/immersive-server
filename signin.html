@@ -187,19 +187,30 @@
     signinWithEmail(email, password)
   })
 
-  document.getElementById('reset').addEventListener('click', (event) => {
+  document.getElementById('reset').addEventListener('click', async (event) => {
     event.preventDefault()
     const email = document.getElementById('email').value
     if (email === "") {
       document.getElementById('instruction').style.display = 'block'
     } else {
-      const { data, error } = supabase.auth.api.resetPasswordForEmail(
-        email,
-        { redirectTo: 'https://immersive-server.netlify.app/reset_password.html' }
-      )
-      const instro = document.getElementById('instruction')
-      if (instro.style.display === 'block') {
-        instro.style.display = 'none'
+      try {
+        const { data, error } = await supabase.auth.resetPasswordForEmail(
+          email,
+          { redirectTo: 'https://immersive-server.netlify.app/reset_password.html' }
+        )
+        const instro = document.getElementById('instruction')
+        if (instro.style.display === 'block') {
+          instro.style.display = 'none'
+        }
+
+        if (error) {
+          console.error("Supabase error:", error.message);
+          alert("Error sending reset email. Please try again later.");
+        } else {
+          alert("Reset email sent successfully!");
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
       }
     }
   })
