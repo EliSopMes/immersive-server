@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import jwtDecode from "jwt-decode";
+// import jwtDecode from "jwt-decode";
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY); // Service role key — only on server
 
@@ -46,7 +46,7 @@ export async function handler(event, context) {
     // }
 
     // const userId = user.id;
-    const { sub: userId } = jwtDecode(jwt);
+    // const { sub: userId } = jwtDecode(jwt);
     const { url } = JSON.parse(event.body);
 
     let { data, error } = await supabase
