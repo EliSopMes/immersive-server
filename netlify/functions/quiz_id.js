@@ -1,5 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
-import jwtDecode from "jwt-decode";
+// import { createClient } from "@supabase/supabase-js";
+// import jwtDecode from "jwt-decode";
+
+const { createClient } = require("@supabase/supabase-js");
+const jwtDecode = require("jwt-decode");
+
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY); // Service role key — only on server
 
