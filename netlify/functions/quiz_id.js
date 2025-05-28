@@ -1,8 +1,8 @@
-// import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 // import jwtDecode from "jwt-decode";
 
-const { createClient } = require("@supabase/supabase-js");
-const jwtDecode = require("jwt-decode");
+// const { createClient } = require("@supabase/supabase-js");
+// const jwtDecode = require("jwt-decode");
 
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY); // Service role key — only on server
@@ -31,7 +31,26 @@ export async function handler(event, context) {
       };
     }
 
-    const { sub: userId } = jwtDecode(jwt);
+    const supabaseUserClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON, // Only needed to decode the JWT
+      {
+        global: { headers: { Authorization: `Bearer ${jwt}` } }
+      }
+    );
+
+    const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: "Invalid token or user not found" })
+      };
+    }
+    
+    const userId = user.id;
+    // const { sub: userId } = jwtDecode(jwt);
     const { url } = JSON.parse(event.body);
 
     const { data: quizData, error: quizError } = await supabase
