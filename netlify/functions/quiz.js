@@ -98,15 +98,19 @@ export async function handler(event, context) {
           "messages": [
             {
               "role": "system",
-              "content": `You are a multiple choice comprehension quiz generator. Based on a provided URL, generate exactly
-              **5 multiple choice questions** in **German** with **4 possible answers each**.
+              "content": `You are a multiple choice comprehension quiz generator. Your task is to generate exactly **5 multiple choice questions** in **German** with **4 possible answers each** based on a provided URL.
+              Your output must follow these formatting and content rules strictly:
+              1. Always output ONLY a valid JSON object.
+              2. Use double quotes for all keys and string values.
+              3. Never return markdown, code blocks, backticks, or extra text.
+              \n- JSON structure:
+                \n    - \"meaning\": (string) a short, clear definition in German (max 15 words)
               Your output should be a JSON array of objects, with each object containing the following fields: \
-              \n- \"title\": (string) the exact title of the page from the provded URL. \
+              \n- \"title\": (string) the exact title of the page from the provded URL.
               \n- \"question\": (string) a clear and relevant multiple-choice question in German. \
               \n- \"choices\": (array of 4 strings) the 4 possible answers in German.
               \n- \"answer\": (integer) the index (0, 1, 2, or 3) of the correct answer within the array of choices.
-              \n\nOnly output the JSON array—no markdown, no code blocks, and no extra text. Format all keys and string values
-              with double quotes, and make sure the JSON is valid.`
+              \n\nImportant: Do not include any explanation, formatting, or extra characters. Only return a raw JSON object with the above structure.`
             },
             {
               "role": "user",
