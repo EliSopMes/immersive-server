@@ -66,7 +66,7 @@ export async function handler(event, context) {
       };
     }
 
-    console.log(existingQuestions)
+    console.log("Existing questions?", existingQuestions)
 
     if (existingQuestions.length > 0) {
       const { data: questions, error: questionsError } = await supabase
@@ -88,6 +88,7 @@ export async function handler(event, context) {
         body: JSON.stringify({ questions, quizId })
       }
     } else {
+      console.log("reached the AI generating part")
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: 'POST',
         headers: {
