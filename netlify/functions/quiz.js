@@ -87,7 +87,7 @@ export async function handler(event, context) {
         headers,
         body: JSON.stringify({ questions, quizId })
       }
-    } else {
+    } else if (existingQuestions === undefined) {
       console.log("reached the AI generating part")
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: 'POST',
