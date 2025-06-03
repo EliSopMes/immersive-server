@@ -17,7 +17,6 @@ export async function handler(event, context) {
     };
   }
 
-
   try {
     const jwt = event.headers.authorization?.replace("Bearer ", "");
     if (!jwt) {
@@ -27,58 +26,60 @@ export async function handler(event, context) {
         body: JSON.stringify({ error: "Missing or invalid token" })
       };
     }
-    // const supabaseUserClient = createClient(
-    //   process.env.SUPABASE_URL,
-    //   process.env.SUPABASE_ANON, // Only needed to decode the JWT
-    //   {
-    //     global: { headers: { Authorization: `Bearer ${jwt}` } }
-    //   }
-    // );
+    const supabaseUserClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON, // Only needed to decode the JWT
+      {
+        global: { headers: { Authorization: `Bearer ${jwt}` } }
+      }
+    );
 
-    // const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
+    const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
 
-    // if (userError || !user) {
-    //   return {
-    //     statusCode: 401,
-    //     headers,
-    //     body: JSON.stringify({ error: "Invalid token or user not found" })
-    //   };
-    // }
-
-    // const userId = user.id;
-    // const { sub: userId } = jwtDecode(jwt);
-    const { url } = JSON.parse(event.body);
-
-    let { data, error } = await supabase
-      .from("quizzes")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("url", url)
-      .single();
-
-    if (error && error.code !== "PGRST116") {
-      // Real error
-      return { statusCode: 500, headers, body: JSON.stringify({ error: "Database query failed" }) };
+    if (userError || !user) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: "Invalid token or user not found" })
+      };
     }
 
-    if (data) {
+    const userId = user.id;
+    const { url, quizId } = JSON.parse(event.body);
+
+    let { existingQuestions, checkError } = await supabase
+      .from("questions")
+      .select("id")
+      .eq("quiz_id", quizId)
+      .limit(1);
+
+    if (checkError) {
+      // Real error
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: "Failed to check existing questions", details: checkError })
+      };
+    }
+
+    if (existingQuestions.length > 0) {
       const { data: questions, error: questionsError } = await supabase
         .from("questions")
         .select("id, question, correct_answer, answers(answer_text, index)")
-        .eq("quiz_id", data.id);
+        .eq("quiz_id", quizId);
 
       if (questionsError) {
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ error: "Failed to fetch questions" })
+          body: JSON.stringify({ error: "Failed to fetch questions", details: questionsError })
         };
       }
 
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ questions })
+        body: JSON.stringify({ questions, quizId })
       }
     } else {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -95,6 +96,7 @@ export async function handler(event, context) {
               "content": `You are a multiple choice comprehension quiz generator. Based on a provided URL, generate exactly
               **5 multiple choice questions** in **German** with **4 possible answers each**.
               Your output should be a JSON array of objects, with each object containing the following fields: \
+              \n- \"title\": (string) the exact title of the page from the provded URL. \
               \n- \"question\": (string) a clear and relevant multiple-choice question in German. \
               \n- \"choices\": (array of 4 strings) the 4 possible answers in German.
               \n- \"answer\": (integer) the index (0, 1, 2, or 3) of the correct answer within the array of choices.
@@ -112,20 +114,62 @@ export async function handler(event, context) {
       });
       const openaiData = await response.json();
       const questions = JSON.parse(openaiData.choices[0].message.content)
+      const quizTitle = questions[0]?.title || 'Untitled'
     }
-    const { data: quizData, error: quizError } = await supabase
+    const { error: quizError } = await supabase
       .from("quizzes")
-      .insert({ user_id: userId, url })
-      .select()
-      .single();
+      .insert({ title: quizTitle })
+      .eq("id", quizId)
+      .eq("user_id", userId);
 
     if (quizError) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: "Failed to insert quiz" })
+        body: JSON.stringify({ error: "Failed to update quiztitle", details: quizError })
       };
     }
+
+    for (const q of questions) {
+      const { question, choices, answer } = q;
+
+      const { data: questionData, error: questionError } = await supabase
+        .from("questions")
+        .insert({
+          quiz_id: quizId,
+          question,
+          correct_answer: answer
+        })
+        .select()
+        .single();
+
+      if (questionError) {
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: "Failed to insert question", details: questionError })
+        };
+      }
+
+      const questionId = questionData.id;
+
+      const answerPayload = choices.map((text, index) => ({
+        question_id: questionId,
+        answer_text: text,
+        index
+      }));
+
+      const { error:  answersError } = await supabase.from("answers").insert(answerPayload)
+      if (answersError) {
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: "Failed to insert answers", details: answersError })
+        };
+      }
+    }
+
+
     return {
       statusCode: 200,
       headers,
