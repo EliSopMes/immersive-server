@@ -118,15 +118,17 @@ export async function handler(event, context) {
         })
       });
       const openaiData = await response.json();
-      console.log(openaiData)
       const questions = JSON.parse(openaiData.choices[0].message.content)
+      console.log(questions)
       const quizTitle = questions[0]?.title || 'Untitled'
+      console.log(quizTitle)
 
-      const { error: quizError } = await supabase
+      const { data, error: quizError } = await supabase
         .from("quizzes")
-        .insert({ title: quizTitle })
+        .update({ title: quizTitle })
         .eq("id", quizId)
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .select();
 
       if (quizError) {
         console.log(quizError)
@@ -135,6 +137,10 @@ export async function handler(event, context) {
           headers,
           body: JSON.stringify({ error: "Failed to update quiztitle", details: quizError })
         };
+      }
+
+      if (!data || data.length === 0) {
+        console.warn("No matching quiz found to update.");
       }
 
       for (const q of questions) {
