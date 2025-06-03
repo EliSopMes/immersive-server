@@ -122,10 +122,11 @@ export async function handler(event, context) {
         })
       });
       const openaiData = await response.json();
+      const content = openaiData.choices[0].message.content
+      console.log(content)
+      const cleanedContent = content.trim().replace(/^```json\s*|\s*```$/g, "");
       try {
-        const content = openaiData.choices[0].message.content
-        console.log(content)
-        const questions = JSON.parse(content)
+        const questions = JSON.parse(cleanedContent)
         console.log(questions)
         const quizTitle = questions[0]?.title || 'Untitled'
         console.log(quizTitle)
