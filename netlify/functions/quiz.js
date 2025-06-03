@@ -126,7 +126,9 @@ export async function handler(event, context) {
       const openaiData = await response.json();
       const content = openaiData.choices[0].message.content
       console.log(content)
-      const cleanedContent = content.trim().replace(/^```json\s*|\s*```$/g, "");
+      const cleanedContent = content.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+      // const cleanedContent = content.trim().replace(/^```json\s*|\s*```$/g, "");
+      console.log(cleanedContent)
       try {
         const questions = JSON.parse(cleanedContent)
         console.log(questions)
