@@ -122,12 +122,21 @@ export async function handler(event, context) {
         })
       });
       const openaiData = await response.json();
-      console.log(openaiData.choices[0].message)
-      console.log(openaiData.choices[0].message.content)
-      const questions = JSON.parse(openaiData.choices[0].message.content)
-      console.log(questions)
-      const quizTitle = questions[0]?.title || 'Untitled'
-      console.log(quizTitle)
+      try {
+        const content = openaiData.choices[0].message.content
+        console.log(content)
+        const questions = JSON.parse(content)
+        console.log(questions)
+        const quizTitle = questions[0]?.title || 'Untitled'
+        console.log(quizTitle)
+      } catch (parseError) {
+        console.error("❌ Failed to parse OpenAI response:", parseError);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: "Invalid JSON from OpenAI", details: parseError.message })
+        };
+      }
 
       const { data, error: quizError } = await supabase
         .from("quizzes")
