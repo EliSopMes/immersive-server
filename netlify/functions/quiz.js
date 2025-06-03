@@ -66,21 +66,23 @@ export async function handler(event, context) {
       };
     }
 
-    console.log("Existing questions?", existingQuestions)
 
     if (existingQuestions.length > 0) {
+      console.log("Existing questions?", existingQuestions)
       const { data: questions, error: questionsError } = await supabase
         .from("questions")
         .select("id, question, correct_answer, answers(answer_text, index)")
         .eq("quiz_id", quizId);
 
       if (questionsError) {
+        console.log(questionsError)
         return {
           statusCode: 500,
           headers,
           body: JSON.stringify({ error: "Failed to fetch questions", details: questionsError })
         };
       }
+      console.log("hey?", questions)
 
       return {
         statusCode: 200,
