@@ -118,6 +118,8 @@ export async function handler(event, context) {
         })
       });
       const openaiData = await response.json();
+      console.log(openaiData.choices[0].message)
+      console.log(openaiData.choices[0].message.content)
       const questions = JSON.parse(openaiData.choices[0].message.content)
       console.log(questions)
       const quizTitle = questions[0]?.title || 'Untitled'
