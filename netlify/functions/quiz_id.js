@@ -48,10 +48,12 @@ export async function handler(event, context) {
         body: JSON.stringify({ error: "Invalid token or user not found" })
       };
     }
-    
+
     const userId = user.id;
+    console.log(userId)
     // const { sub: userId } = jwtDecode(jwt);
     const { url } = JSON.parse(event.body);
+    console.log(url)
 
     const { data: quizData, error: quizError } = await supabase
       .from("quizzes")
@@ -63,7 +65,7 @@ export async function handler(event, context) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: "Failed to create quiz entry" })
+        body: JSON.stringify({ error: "Failed to create quiz entry", quizError })
       };
     }
 
