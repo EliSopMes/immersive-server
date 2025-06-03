@@ -62,12 +62,15 @@ export async function handler(event, context) {
       .single();
 
     if (quizError || !quizData || !quizData.id) {
+      console.log(quizError)
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ error: "Failed to create quiz entry", quizError })
       };
     }
+
+    console.log(quizData)
 
     return {
       statusCode: 200,
