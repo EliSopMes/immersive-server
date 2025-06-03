@@ -125,15 +125,85 @@ export async function handler(event, context) {
       });
       const openaiData = await response.json();
       const content = openaiData.choices[0].message.content
-      console.log(content)
       const cleanedContent = content.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
       // const cleanedContent = content.trim().replace(/^```json\s*|\s*```$/g, "");
-      console.log(cleanedContent)
       try {
         const questions = JSON.parse(cleanedContent)
-        console.log(questions)
         const quizTitle = questions[0]?.title || 'Untitled'
         console.log(quizTitle)
+
+        const { data, error: quizError } = await supabase
+          .from("quizzes")
+          .update({ title: quizTitle })
+          .eq("id", quizId)
+          .eq("user_id", userId)
+          .select();
+
+        if (quizError) {
+          console.log(quizError)
+          return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: "Failed to update quiztitle", details: quizError })
+          };
+        }
+
+        if (!data || data.length === 0) {
+          console.warn("No matching quiz found to update.");
+        }
+
+        for (const q of questions) {
+          const { question, choices, answer } = q;
+          console.log(question)
+          console.log(choices)
+          console.log(answer)
+
+          const { data: questionData, error: questionError } = await supabase
+            .from("questions")
+            .insert({
+              quiz_id: quizId,
+              question,
+              correct_answer: answer
+            })
+            .select()
+            .single();
+
+          if (questionError) {
+            console.log(questionError)
+
+            return {
+              statusCode: 500,
+              headers,
+              body: JSON.stringify({ error: "Failed to insert question", details: questionError })
+            };
+          }
+
+          const questionId = questionData.id;
+
+          const answerPayload = choices.map((text, index) => ({
+            question_id: questionId,
+            answer_text: text,
+            index
+          }));
+
+          const { error:  answersError } = await supabase.from("answers").insert(answerPayload)
+          if (answersError) {
+            console.log(answersError)
+
+            return {
+              statusCode: 500,
+              headers,
+              body: JSON.stringify({ error: "Failed to insert answers", details: answersError })
+            };
+          }
+        }
+
+        console.log("everything should be fine")
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ questions })
+        }
       } catch (parseError) {
         console.error("❌ Failed to parse OpenAI response:", parseError);
         return {
@@ -141,79 +211,6 @@ export async function handler(event, context) {
           headers,
           body: JSON.stringify({ error: "Invalid JSON from OpenAI", details: parseError.message })
         };
-      }
-
-      const { data, error: quizError } = await supabase
-        .from("quizzes")
-        .update({ title: quizTitle })
-        .eq("id", quizId)
-        .eq("user_id", userId)
-        .select();
-
-      if (quizError) {
-        console.log(quizError)
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ error: "Failed to update quiztitle", details: quizError })
-        };
-      }
-
-      if (!data || data.length === 0) {
-        console.warn("No matching quiz found to update.");
-      }
-
-      for (const q of questions) {
-        const { question, choices, answer } = q;
-        console.log(question)
-        console.log(choices)
-        console.log(answer)
-
-        const { data: questionData, error: questionError } = await supabase
-          .from("questions")
-          .insert({
-            quiz_id: quizId,
-            question,
-            correct_answer: answer
-          })
-          .select()
-          .single();
-
-        if (questionError) {
-          console.log(questionError)
-
-          return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({ error: "Failed to insert question", details: questionError })
-          };
-        }
-
-        const questionId = questionData.id;
-
-        const answerPayload = choices.map((text, index) => ({
-          question_id: questionId,
-          answer_text: text,
-          index
-        }));
-
-        const { error:  answersError } = await supabase.from("answers").insert(answerPayload)
-        if (answersError) {
-          console.log(answersError)
-
-          return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({ error: "Failed to insert answers", details: answersError })
-          };
-        }
-      }
-
-      console.log("everything should be fine")
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ questions })
       }
     }
   } catch (error) {
