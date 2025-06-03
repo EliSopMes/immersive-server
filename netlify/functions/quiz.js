@@ -119,7 +119,7 @@ export async function handler(event, context) {
               "content": `Was sind 5 Verständnisfragen (Multiple Choice) für diesen Text: ${url}?`
             }
           ],
-          max_tokens: 100,
+          max_tokens: 500,
           temperature: 0.5
         })
       });
