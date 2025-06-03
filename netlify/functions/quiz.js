@@ -45,10 +45,7 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
-    console.log(userId)
     const { url, quizId } = JSON.parse(event.body);
-    console.log(url)
-    console.log(quizId)
 
     let { existingQuestions, checkError } = await supabase
       .from("questions")
@@ -66,7 +63,6 @@ export async function handler(event, context) {
       };
     }
 
-    console.log("Existing questions?", existingQuestions)
     if (existingQuestions && existingQuestions.length > 0) {
       console.log("hey there")
       const { data: questions, error: questionsError } = await supabase
@@ -133,6 +129,7 @@ export async function handler(event, context) {
         .eq("user_id", userId);
 
       if (quizError) {
+        console.log(quizError)
         return {
           statusCode: 500,
           headers,
@@ -142,6 +139,9 @@ export async function handler(event, context) {
 
       for (const q of questions) {
         const { question, choices, answer } = q;
+        console.log(question)
+        console.log(choices)
+        console.log(answer)
 
         const { data: questionData, error: questionError } = await supabase
           .from("questions")
@@ -154,6 +154,8 @@ export async function handler(event, context) {
           .single();
 
         if (questionError) {
+          console.log(questionError)
+
           return {
             statusCode: 500,
             headers,
@@ -171,6 +173,8 @@ export async function handler(event, context) {
 
         const { error:  answersError } = await supabase.from("answers").insert(answerPayload)
         if (answersError) {
+          console.log(answersError)
+
           return {
             statusCode: 500,
             headers,
@@ -178,6 +182,8 @@ export async function handler(event, context) {
           };
         }
       }
+
+      console.log("everything should be fine")
       return {
         statusCode: 200,
         headers,
