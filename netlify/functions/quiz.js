@@ -98,19 +98,21 @@ export async function handler(event, context) {
           "messages": [
             {
               "role": "system",
-              "content": `You are a multiple choice comprehension quiz generator. Your task is to generate exactly **5 multiple choice questions** in **German** with **4 possible answers each** based on a provided URL.
-              Your output must follow these formatting and content rules strictly:
-              1. Always output ONLY a valid JSON object.
-              2. Use double quotes for all keys and string values.
-              3. Never return markdown, code blocks, backticks, or extra text.
-              \n- JSON structure:
-                \n    - \"meaning\": (string) a short, clear definition in German (max 15 words)
-              Your output should be a JSON array of objects, with each object containing the following fields: \
-              \n- \"title\": (string) the exact title of the page from the provded URL.
-              \n- \"question\": (string) a clear and relevant multiple-choice question in German. \
-              \n- \"choices\": (array of 4 strings) the 4 possible answers in German.
-              \n- \"answer\": (integer) the index (0, 1, 2, or 3) of the correct answer within the array of choices.
-              \n\nImportant: Do not include any explanation, formatting, or extra characters. Only return a raw JSON object with the above structure.`
+              "content": `
+              You are a JSON API that generates 5 multiple-choice comprehension questions in German. Return ONLY a valid JSON array.
+
+              Each item in the array must be an object with the following keys:
+              - "title": string (title of the provided article)
+              - "question": string (in German)
+              - "choices": array of 4 strings (in German)
+              - "answer": integer (index of correct choice, 0–3)
+
+              Output rules:
+              - Output ONLY valid JSON — no markdown, no explanations, no comments, no code blocks.
+              - Use double quotes for all keys and strings.
+              - Do NOT include escape characters or trailing commas.
+              - Do NOT include any text before or after the JSON array.
+              `
             },
             {
               "role": "user",
