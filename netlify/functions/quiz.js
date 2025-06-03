@@ -45,7 +45,10 @@ export async function handler(event, context) {
     }
 
     const userId = user.id;
+    console.log(userId)
     const { url, quizId } = JSON.parse(event.body);
+    console.log(url)
+    console.log(quizId)
 
     let { existingQuestions, checkError } = await supabase
       .from("questions")
@@ -54,6 +57,7 @@ export async function handler(event, context) {
       .limit(1);
 
     if (checkError) {
+      console.log(checkError)
       // Real error
       return {
         statusCode: 500,
@@ -61,6 +65,8 @@ export async function handler(event, context) {
         body: JSON.stringify({ error: "Failed to check existing questions", details: checkError })
       };
     }
+
+    console.log(existingQuestions)
 
     if (existingQuestions.length > 0) {
       const { data: questions, error: questionsError } = await supabase
@@ -113,67 +119,67 @@ export async function handler(event, context) {
         })
       });
       const openaiData = await response.json();
+      console.log(openaiData)
       const questions = JSON.parse(openaiData.choices[0].message.content)
       const quizTitle = questions[0]?.title || 'Untitled'
-    }
-    const { error: quizError } = await supabase
-      .from("quizzes")
-      .insert({ title: quizTitle })
-      .eq("id", quizId)
-      .eq("user_id", userId);
 
-    if (quizError) {
+      const { error: quizError } = await supabase
+        .from("quizzes")
+        .insert({ title: quizTitle })
+        .eq("id", quizId)
+        .eq("user_id", userId);
+
+      if (quizError) {
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: "Failed to update quiztitle", details: quizError })
+        };
+      }
+
+      for (const q of questions) {
+        const { question, choices, answer } = q;
+
+        const { data: questionData, error: questionError } = await supabase
+          .from("questions")
+          .insert({
+            quiz_id: quizId,
+            question,
+            correct_answer: answer
+          })
+          .select()
+          .single();
+
+        if (questionError) {
+          return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: "Failed to insert question", details: questionError })
+          };
+        }
+
+        const questionId = questionData.id;
+
+        const answerPayload = choices.map((text, index) => ({
+          question_id: questionId,
+          answer_text: text,
+          index
+        }));
+
+        const { error:  answersError } = await supabase.from("answers").insert(answerPayload)
+        if (answersError) {
+          return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: "Failed to insert answers", details: answersError })
+          };
+        }
+      }
       return {
-        statusCode: 500,
+        statusCode: 200,
         headers,
-        body: JSON.stringify({ error: "Failed to update quiztitle", details: quizError })
-      };
-    }
-
-    for (const q of questions) {
-      const { question, choices, answer } = q;
-
-      const { data: questionData, error: questionError } = await supabase
-        .from("questions")
-        .insert({
-          quiz_id: quizId,
-          question,
-          correct_answer: answer
-        })
-        .select()
-        .single();
-
-      if (questionError) {
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ error: "Failed to insert question", details: questionError })
-        };
+        body: JSON.stringify({ questions })
       }
-
-      const questionId = questionData.id;
-
-      const answerPayload = choices.map((text, index) => ({
-        question_id: questionId,
-        answer_text: text,
-        index
-      }));
-
-      const { error:  answersError } = await supabase.from("answers").insert(answerPayload)
-      if (answersError) {
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ error: "Failed to insert answers", details: answersError })
-        };
-      }
-    }
-
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ questions })
     }
   } catch (error) {
     return {
