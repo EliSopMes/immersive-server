@@ -5,7 +5,13 @@ const supabase = createClient(
   process.env.SUPABASE_ANON // Use ANON if calling refreshToken, not SERVICE_ROLE
 )
 
-export async function handler(event) {
+export async function handler(event, context) {
+  const headers = {
+    "Access-Control-Allow-Origin": "*", // or set a specific domain instead of '*'
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
+
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -33,7 +39,7 @@ export async function handler(event) {
       body: JSON.stringify({ error: error.message }),
     }
   }
-  
+
   console.log(data)
   // Store new session/token securely if needed (optional)
 
