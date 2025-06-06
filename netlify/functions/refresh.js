@@ -6,15 +6,25 @@ const supabase = createClient(
 )
 
 export async function handler(event, context) {
-  const headers = {
-    "Access-Control-Allow-Origin": "*", // or set a specific domain instead of '*'
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*', // Replace * with your specific allowed origin in production
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  }
+
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: 'OK',
+    }
+  }
 
 
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Method Not Allowed' }),
     }
   }
