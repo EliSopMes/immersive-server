@@ -14,6 +14,7 @@ export async function handler(event) {
   }
 
   const { refresh_token } = JSON.parse(event.body)
+  console.log(refresh_token)
 
   if (!refresh_token) {
     return {
@@ -24,13 +25,16 @@ export async function handler(event) {
 
   const { data, error } = await supabase.auth.refreshSession({ refresh_token })
 
+
+
   if (error) {
     return {
       statusCode: 401,
       body: JSON.stringify({ error: error.message }),
     }
   }
-
+  
+  console.log(data)
   // Store new session/token securely if needed (optional)
 
   return {
