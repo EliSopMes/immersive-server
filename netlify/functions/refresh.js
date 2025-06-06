@@ -38,12 +38,12 @@ export async function handler(event, context) {
       body: JSON.stringify({ error: 'Refresh token is required' }),
     }
   }
+  console.log("made it to before refreshSession")
 
   const { data, error } = await supabase.auth.refreshSession({ refresh_token })
 
-
-
   if (error) {
+    console.log(error)
     return {
       statusCode: 401,
       body: JSON.stringify({ error: error.message }),
