@@ -65,26 +65,11 @@ export async function handler(event, context) {
 
     if (existingQuestions && existingQuestions.length > 0) {
       console.log("hey there")
-      const { data: questions, error: questionsError } = await supabase
-        .from("questions")
-        .select("id, question, correct_answer, answers(answer_text, index)")
-        .eq("quiz_id", quizId);
-
-      if (questionsError) {
-        console.log(questionsError)
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ error: "Failed to fetch questions", details: questionsError })
-        };
-      }
-      console.log("hey?", questions)
-
       return {
-        statusCode: 200,
+        statusCode: 201,
         headers,
-        body: JSON.stringify({ questions, quizId })
-      }
+        body: JSON.stringify({ quizId: quizId })
+      };
     } else {
       console.log("reached the AI generating part")
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -119,13 +104,14 @@ export async function handler(event, context) {
               "content": `Was sind 5 Verständnisfragen (Multiple Choice) für diesen Text: ${url}?`
             }
           ],
-          max_tokens: 500,
+          max_tokens: 1500,
           temperature: 0.5
         })
       });
       const openaiData = await response.json();
       const content = openaiData.choices[0].message.content
       const cleanedContent = content.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+      console.log(cleanedContent)
       // const cleanedContent = content.trim().replace(/^```json\s*|\s*```$/g, "");
       try {
         const questions = JSON.parse(cleanedContent)
