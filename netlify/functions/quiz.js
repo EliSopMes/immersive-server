@@ -7,6 +7,7 @@ export async function handler(event, context) {
   const headers = {
     "Access-Control-Allow-Origin": "*", // or set a specific domain instead of '*'
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
   };
 
   if (event.httpMethod === "OPTIONS") {
@@ -59,7 +60,10 @@ export async function handler(event, context) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: "Failed to check existing questions", details: checkError })
+        body: JSON.stringify({
+          error: "Failed to check existing questions",
+          details: checkError.message
+        })
       };
     }
 
@@ -195,7 +199,11 @@ export async function handler(event, context) {
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ error: "Invalid JSON from OpenAI", details: parseError.message })
+          body: JSON.stringify({
+            error: "Invalid JSON from OpenAI",
+            details: parseError.message,
+            original: content
+          })
         };
       }
     }
