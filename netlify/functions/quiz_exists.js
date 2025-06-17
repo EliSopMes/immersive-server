@@ -60,14 +60,12 @@ export async function handler(event, context) {
     console.log(userId)
     console.log(url)
 
-    let { existingQuiz, checkError } = await supabase
+    let { data: existingQuiz, error: checkError } = await supabase
       .from("quizzes")
       .select("id")
       .eq("user_id", userId)
       .eq("url", url)
       .single();
-
-    console.log("reached after database")
 
     if (checkError) {
       console.log(checkError)
@@ -79,6 +77,14 @@ export async function handler(event, context) {
           error: "Failed to check existing questions",
           details: checkError.message
         })
+      };
+    }
+
+    if (!existingQuiz) {
+      return {
+        statusCode: 204, // No Content
+        headers,
+        body: JSON.stringify({ message: "No quiz found for this user/url" })
       };
     }
 
