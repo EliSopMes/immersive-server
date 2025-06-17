@@ -1,16 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
-// import jwtDecode from "jwt-decode";
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY); // Service role key — only on server
 
 export async function handler(event, context) {
+  console.log("reached function")
   const headers = {
     "Access-Control-Allow-Origin": "*", // or set a specific domain instead of '*'
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
   };
 
+  console.log(headers)
+
   if (event.httpMethod === "OPTIONS") {
+    console.log("reached inside event.httpMethod")
     return {
       statusCode: 200,
       headers,
@@ -18,8 +21,11 @@ export async function handler(event, context) {
     };
   }
 
+  console.log("reached before try")
+
   try {
     const jwt = event.headers.authorization?.replace("Bearer ", "");
+    console.log(jwt)
     if (!jwt) {
       return {
         statusCode: 401,
@@ -27,6 +33,7 @@ export async function handler(event, context) {
         body: JSON.stringify({ error: "Missing or invalid token" })
       };
     }
+    console.log("jwt exists")
     const supabaseUserClient = createClient(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_ANON, // Only needed to decode the JWT
@@ -35,7 +42,9 @@ export async function handler(event, context) {
       }
     );
 
+
     const { data: { user }, error: userError } = await supabaseUserClient.auth.getUser();
+    console.log(user)
 
     if (userError || !user) {
       return {
@@ -47,6 +56,9 @@ export async function handler(event, context) {
 
     const userId = user.id;
     const { url } = JSON.parse(event.body);
+
+    console.log(userId)
+    console.log(url)
 
     let { existingQuiz, checkError } = await supabase
       .from("quizzes")
