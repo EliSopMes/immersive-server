@@ -67,6 +67,8 @@ export async function handler(event, context) {
       .eq("url", url)
       .single();
 
+    console.log("reached after database")
+
     if (checkError) {
       console.log(checkError)
       // Real error
@@ -89,6 +91,7 @@ export async function handler(event, context) {
       };
     }
   } catch (error) {
+    console.log(error)
     return {
       statusCode: 500,
       headers,
