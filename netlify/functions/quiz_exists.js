@@ -82,6 +82,8 @@ export async function handler(event, context) {
       };
     }
 
+    console.log(existingQuiz)
+
     if (existingQuiz) {
       console.log("hey there")
       return {
